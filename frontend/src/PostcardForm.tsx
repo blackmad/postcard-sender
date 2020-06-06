@@ -13,7 +13,6 @@ import CheckoutForm from "./CheckoutForm";
 import MyAddressInput from "./MyAddressInput";
 import { templatesCollection } from "./firebase";
 
-
 const SpecialVars = ["YOUR NAME", "YOUR ADDRESS"];
 
 function parseVars(template: string) {
@@ -88,10 +87,17 @@ function PostcardForm({ mailId }: Props) {
       .doc(mailId)
       .get()
       .then((value) => {
-        console.log(value.data());
         const template = (value.data() as unknown) as Template;
         setTemplate(template);
-        setVariables(parseVars(template.template) || []);
+
+        let variableKeys = parseVars(template.template) || [];
+        const emailKey = _.find(variableKeys, (v) => v.toLocaleLowerCase().includes("email"));
+
+        if (!emailKey) {
+          variableKeys = [...variableKeys, 'YOUR EMAIL'];
+        }
+
+        setVariables(variableKeys);
       });
   }, [mailId]);
 
@@ -133,7 +139,7 @@ function PostcardForm({ mailId }: Props) {
   console.log(variableMap);
 
   _.forEach(variableMap, (value, key) => {
-    newBodyText = newBodyText.replace(new RegExp(`\\[${key}\\]`, 'g'), value);
+    newBodyText = newBodyText.replace(new RegExp(`\\[${key}\\]`, "g"), value);
   });
 
   const hasAllKeys = _.difference([...variables, ...SpecialVars], _.keys(variableMap)).length === 0;
@@ -141,30 +147,42 @@ function PostcardForm({ mailId }: Props) {
   console.log(newBodyText);
 
   if (!template) {
-    return <Container>Loading ...</Container>
+    return <Container>Loading ...</Container>;
   }
 
+  const emailKey = _.find(variables, (v) => v.toLocaleLowerCase().includes("email"));
+  const email = variableMap[emailKey!];
+
   return (
-      <Container>
-        <MyAddressInput updateAddress={updateAddress} />
+    <Container>
+      <MyAddressInput updateAddress={updateAddress} />
 
-        <Inputs inputs={variables} updateField={updateField} />
-        <Row>
-          {/* <Form.Control as="textarea" value={bodyText} /> */}
-          <div style={{  whiteSpace: 'pre-wrap'}}>
-            {(newBodyText || '').replace(/\n/g, '\n\n')}
-          </div>
-        </Row>
+      <Inputs inputs={variables} updateField={updateField} />
+      <Row>
+        {/* <Form.Control as="textarea" value={bodyText} /> */}
+        <div
+          style={{
+            padding: "10px",
+            background: "cornsilk",
+            margin: "10px",
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          {(newBodyText || "").replace(/\n/g, "\n\n")}
+        </div>
+      </Row>
 
-        <Addresses addresses={template.addresses} onAddressSelected={onAddressSelected} />
+      <Addresses addresses={template.addresses} onAddressSelected={onAddressSelected} />
 
-        <CheckoutForm 
-          checkedAddresses={checkedAddresses}
-          myAddress={myAddress}
-          body={newBodyText}
-          formValid={hasAllKeys}
-        />
-      </Container>
+      <CheckoutForm
+        checkedAddresses={checkedAddresses}
+        myAddress={myAddress}
+        body={newBodyText}
+        formValid={hasAllKeys}
+        email={email}
+        variables={variableMap}
+      />
+    </Container>
   );
 }
 

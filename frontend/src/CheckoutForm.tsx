@@ -14,11 +14,15 @@ const CheckoutForm = ({
   myAddress,
   body,
   formValid,
+  email,
+  variables,
 }: {
-  checkedAddresses: Address[];
-  myAddress: Address;
+  checkedAddresses: Address[],
+  myAddress: Address,
   body: string;
   formValid: boolean,
+  email: string,
+  variables: Record<string, string>,
 }) => {
   const [error, setError] = useState('');
   
@@ -37,7 +41,9 @@ const CheckoutForm = ({
       body: JSON.stringify({
         fromAddress: myAddress,
         toAddresses: checkedAddresses,
-        body
+        body,
+        variables: variables,
+        email,
       })
     })
       .then(function (response) {
@@ -52,7 +58,6 @@ const CheckoutForm = ({
     }
 
     const stripeSessionId = response.sessionId;
-    const orderId = response.orderId;
 
     // When the customer clicks on the button, redirect them to Checkout.
     const stripe = await stripePromise;

@@ -1,23 +1,19 @@
 import { orderCollection } from "./database";
 import { Order, Address } from "./types";
 
-import { Lob } from "./apis";
+import { Lob, mg } from "./apis";
 
-// import mailgun = require("mailgun-js");
-
-// const notifyUser() {
-//   const DOMAIN = "sandboxde73a2919f44487791325367101f5da8.mailgun.org";
-//   const mg = mailgun({apiKey: "3b7073e73711a8aeddb5c884f256c8d3-a2b91229-5e8e5db0", domain: DOMAIN});
-//   const data = {
-//     from: "Mailgun Sandbox <postmaster@sandboxde73a2919f44487791325367101f5da8.mailgun.org>",
-//     to: "politics@blackmad.com",
-//     subject: "Hello",
-//     text: "Testing some Mailgun awesomness!"
-//   };
-//   mg.messages().send(data, function (error, body) {
-//     console.log(body);
-//   });
-// }
+export const notifyUser = () => {
+  const data = {
+    from: "Mailgun Sandbox <postmaster@sandboxde73a2919f44487791325367101f5da8.mailgun.org>",
+    to: "politics@blackmad.com",
+    subject: "Hello",
+    text: "Testing some Mailgun awesomness!"
+  };
+  mg.messages().send(data, function (error, body) {
+    console.log(body);
+  });
+}
 
 const makeLetter = ({
   toAddress,
@@ -165,5 +161,6 @@ export const executeOrder = async (orderData: Order) => {
 
   await orderCollection.doc(orderData.orderId).update({ fulfilled: true });
   const lobResponses = await Promise.all([...lobPromises]);
+  console.log(lobResponses);
   return lobResponses;
 };
