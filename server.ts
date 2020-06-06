@@ -55,6 +55,15 @@ app.post(
   }
 )
 
+app.get(
+  '/template/:id',
+  (req, res) => {
+    console.log(req.body);
+    console.log(req.query);
+    // res.end(`Hello ${req.query.name}!`)
+  }
+)
+
 // app.post("/send", (req, res, next) => {
 //   const body = request.body;
 //   const validation = schema.validate(body)
