@@ -1,6 +1,3 @@
-- have data pulled from server from static jekyll-ish files
-
-- ability to click one or more addresses
 - stripe pop-up in frontend
 - send data to backend
 
@@ -12,3 +9,5 @@
 
 - deploy to heroku
 - buy a domain
+
+- have data pulled from server from static jekyll-ish files????

@@ -5,11 +5,16 @@ import {
   useElements,
   CardElement,
 } from "@stripe/react-stripe-js";
+import { Address, POSTCARD_COST } from "./types";
 
-const CheckoutForm = () => {
+import Button from "react-bootstrap/Button";
+
+const CheckoutForm = ({checkedAddresses}: {checkedAddresses: Address[]}) => {
   const stripe = useStripe();
   const elements = useElements();
   const [paymentRequest, setPaymentRequest] = useState(null as any);
+
+  const totalAmount = checkedAddresses.length * POSTCARD_COST;
 
   useEffect(() => {
     if (stripe) {
@@ -18,7 +23,7 @@ const CheckoutForm = () => {
         currency: "usd",
         total: {
           label: "Demo total",
-          amount: 1099,
+          amount: totalAmount,
         },
         requestPayerName: true,
         requestPayerEmail: true,
@@ -95,6 +100,10 @@ const CheckoutForm = () => {
           },
         }}
       />
+      
+      <Button variant="primary" type="submit" disabled={checkedAddresses.length === 0}>
+        {checkedAddresses.length > 0 ? `Pay \$${totalAmount.toFixed(2)}` : 'Select some addresses'}
+      </Button>
     </form>
   );
 };

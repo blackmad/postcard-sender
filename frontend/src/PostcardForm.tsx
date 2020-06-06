@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-import * as _ from 'lodash';
+import * as _ from "lodash";
 
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -11,12 +11,12 @@ import "./App.css";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
-
 import firebase from "firebase/app";
 import "firebase/firestore";
 
-import { Template } from "./types";
-import CheckoutForm from './CheckoutForm';
+import { Template, Address } from "./types";
+import CheckoutForm from "./CheckoutForm";
+import MyAddressInput from "./MyAddressInput";
 
 // Make sure to call `loadStripe` outside of a component’s render to avoid
 // recreating the `Stripe` object on every render.
@@ -36,9 +36,38 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
 
+const SpecialVars = ["YOUR NAME", "YOUR ADDRESS"];
+
 function parseVars(template: string) {
   const match = template.match(/\[[^\]]+\]/g);
-  return _.uniq(match?.map((s) => s.replace("[", "").replace("]", "")));
+  return _.uniq(match?.map((s) => s.replace("[", "").replace("]", ""))).filter(
+    (v) => !SpecialVars.includes(v)
+  );
+}
+
+function Addresses({
+  addresses,
+  onAddressSelected,
+}: {
+  addresses: Address[];
+  onAddressSelected: (b: boolean, c: Address) => void;
+}) {
+  return (
+    <>
+      {addresses?.map((address) => {
+        const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+          onAddressSelected(event.target.checked, address);
+        };
+        return (
+          <Row key={address.name}>
+            <Form.Group controlId={address.name}>
+              <Form.Check type="checkbox" label={address.name} onChange={onChange} />
+            </Form.Group>
+          </Row>
+        );
+      })}
+    </>
+  );
 }
 
 function Inputs({
@@ -55,12 +84,10 @@ function Inputs({
           updateField(input, event.target.value);
         };
         return (
-          <Row key={input}>
-            <Form.Group>
-              <Form.Label>{input}</Form.Label>
-              <Form.Control type="text" onChange={onChange} />
-            </Form.Group>
-          </Row>
+          <Form.Group className="row" key={input}>
+            <Form.Label>{input}</Form.Label>
+            <Form.Control type="text" onChange={onChange} />
+          </Form.Group>
         );
       })}{" "}
     </>
@@ -69,10 +96,10 @@ function Inputs({
 
 function PostcardForm() {
   const [template, setTemplate] = useState({} as Template);
-  const [bodyText, setBodyText] = useState("");
+  const [myAddress, setMyAddress] = useState({} as Address);
   const [variables, setVariables] = useState([] as string[]);
-
-  const variableMap: Record<string, string> = {}
+  const [variableMap, setVariableMap] = useState({} as Record<string, string>);
+  const [checkedAddresses, setCheckedAddresses] = useState([] as Address[]);
 
   const mailId = window.location.search.substr(1);
   useEffect(() => {
@@ -84,34 +111,66 @@ function PostcardForm() {
         const template = (value.data() as unknown) as Template;
         setTemplate(template);
         setVariables(parseVars(template.template) || []);
-        setBodyText(template.template);
       });
   }, [mailId]);
 
-  const renderBody = () => {
-    let newBodyText = template.template;
-    
-    _.forEach(variableMap, (value, key) => {
-      newBodyText = newBodyText.replace(`[${key}]`, value);
-    });
-    setBodyText(newBodyText);
-  }
-
   const updateField = (key: string, value: string) => {
-    variableMap[key] = value;
-    renderBody();
+    console.log({ key, value });
+    const newMap = { ...variableMap };
+    newMap[key] = value;
+    setVariableMap(newMap);
   };
 
+  const onAddressSelected = (isChecked: boolean, address: Address) => {
+    console.log({ isChecked, address });
+    if (isChecked) {
+      setCheckedAddresses(_.uniq([...checkedAddresses, address]));
+    } else {
+      setCheckedAddresses(checkedAddresses.filter((a) => a !== address));
+    }
+  };
+
+  const updateAddress = (address: Address) => {
+    console.log("updating", address);
+    setMyAddress(address);
+
+    const cityStateLine = [address.address_city, address.address_state, address.address_zip]
+      .filter((a) => Boolean(a))
+      .join(" ");
+    const formattedAddress = [address.address_line1, address.address_line2, cityStateLine]
+      .filter((l) => Boolean(l))
+      .join(", ");
+
+    const newMap = { ...variableMap };
+    newMap["YOUR NAME"] = address.name;
+    newMap["YOUR ADDRESS"] = formattedAddress;
+    setVariableMap(newMap);
+  };
+
+  let newBodyText = template.template;
+
+  console.log(variableMap);
+
+  _.forEach(variableMap, (value, key) => {
+    newBodyText = newBodyText.replace(new RegExp(`[${key}]`, 'g'), value);
+  });
+
+  console.log(newBodyText);
 
   return (
     <Elements stripe={stripePromise}>
       <Container>
+        <MyAddressInput updateAddress={updateAddress} />
+
         <Inputs inputs={variables} updateField={updateField} />
         <Row>
-        <Form.Control as="textarea" value={bodyText} />
+          {/* <Form.Control as="textarea" value={bodyText} /> */}
+          {newBodyText}
         </Row>
-        <CheckoutForm />
 
+        <Addresses addresses={template.addresses} onAddressSelected={onAddressSelected} />
+
+        <CheckoutForm checkedAddresses={checkedAddresses} />
       </Container>
     </Elements>
   );

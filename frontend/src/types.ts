@@ -1,3 +1,5 @@
+export const POSTCARD_COST = 0.70;
+
 export interface Address {
   name: string;
   address_line1: string;
