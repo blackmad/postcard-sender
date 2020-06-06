@@ -27,7 +27,7 @@ const CheckoutForm = ({
   const [error, setError] = useState('');
   
   const totalAmount = checkedAddresses.length * LETTER_COST;
-5
+
   const handleSubmit = async (event: any) => {
     // We don't want to let default form submission happen here,
     // which would refresh the page.

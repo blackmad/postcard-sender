@@ -22,6 +22,16 @@ function parseVars(template: string) {
   );
 }
 
+const addressToSingleLine = (address: Address): string => {
+  const cityStateLine = [address.address_city, address.address_state, address.address_zip]
+  .filter((a) => Boolean(a))
+  .join(" ");
+const formattedAddress = [address.address_line1, address.address_line2, cityStateLine]
+  .filter((l) => Boolean(l))
+  .join(", ");
+  return formattedAddress
+}
+
 function Addresses({
   addresses,
   onAddressSelected,
@@ -38,7 +48,7 @@ function Addresses({
         return (
           <Row key={address.name}>
             <Form.Group controlId={address.name}>
-              <Form.Check type="checkbox" label={address.name} onChange={onChange} />
+              <Form.Check type="checkbox" label={`${address.name}, ${addressToSingleLine(address)}`} onChange={onChange} />
             </Form.Group>
           </Row>
         );
@@ -117,20 +127,14 @@ function PostcardForm({ mailId }: Props) {
     }
   };
 
+
   const updateAddress = (address: Address) => {
     console.log("updating", address);
     setMyAddress(address);
 
-    const cityStateLine = [address.address_city, address.address_state, address.address_zip]
-      .filter((a) => Boolean(a))
-      .join(" ");
-    const formattedAddress = [address.address_line1, address.address_line2, cityStateLine]
-      .filter((l) => Boolean(l))
-      .join(", ");
-
     const newMap = { ...variableMap };
     newMap["YOUR NAME"] = address.name;
-    newMap["YOUR ADDRESS"] = formattedAddress;
+    newMap["YOUR ADDRESS"] = addressToSingleLine(address);
     setVariableMap(newMap);
   };
 

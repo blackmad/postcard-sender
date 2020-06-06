@@ -10,7 +10,7 @@ export const notifyUser = () => {
     subject: "Hello",
     text: "Testing some Mailgun awesomness!"
   };
-  mg.messages().send(data, function (error, body) {
+  mg.messages().send(data, function (error: any, body: any) {
     console.log(body);
   });
 }
