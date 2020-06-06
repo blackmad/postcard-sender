@@ -17,7 +17,7 @@
     "firebase-admin": "^8.6.0",
     "firebase-functions": "^3.3.0",
     "joi-extract-type": "^15.0.2",
-    "mailgun": "^0.5.0",
+    "lob": "^6.1.0",
     "mailgun-js": "^0.22.0"
   },
   "devDependencies": {
