@@ -43,6 +43,7 @@ app.post(
           quantity: (toAddresses || []).length,
         },
       ],
+      customer_email: body.email,
       client_reference_id: orderId,
       mode: "payment",
       success_url: `${host}/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -66,8 +67,6 @@ app.post(
     // Handle the event
     switch (event.type) {
       case "checkout.session.completed":
-        console.dir(event.data, { depth: 10 });
-        console.log(event.data.object.client_reference_id);
         await markOrderPaid(event.data.object.client_reference_id);
         return res.json({ received: true });
       default:

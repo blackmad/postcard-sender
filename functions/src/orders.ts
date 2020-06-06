@@ -1,18 +1,25 @@
 import { orderCollection } from "./database";
 import { Order, Address } from "./types";
 
-import { Lob, mg } from "./apis";
+import { Lob, sgMail } from "./apis";
 
-export const notifyUser = () => {
-  const data = {
-    from: "Mailgun Sandbox <postmaster@sandboxde73a2919f44487791325367101f5da8.mailgun.org>",
-    to: "politics@blackmad.com",
-    subject: "Hello",
-    text: "Testing some Mailgun awesomness!"
+export const notifyUser = (email: string, lobResponses: any) => {
+
+  const responseSummaries = lobResponses.map((lobResponse: any) => {
+    return `Sent to: ${lobResponse.to.name}
+Expected Delivery: ${lobResponse.expected_delivery_date}
+Preview: ${lobResponse.url}`
+  }).join('\n\n');
+
+  const body = `You sent some letters!\n\n${responseSummaries}`
+
+  const msg = {
+    to: email,
+    from: 'test@example.com',
+    subject: 'Letters Sent!',
+    text: body,
   };
-  mg.messages().send(data, function (error: any, body: any) {
-    console.log(body);
-  });
+  sgMail.send(msg);
 }
 
 const makeLetter = ({
@@ -24,7 +31,7 @@ const makeLetter = ({
   fromAddress: Address;
   body: string;
 }): string => {
-  const formattedBody = body.replace(/\n/g, "<br/>");
+  const formattedBody = body.replace(/\n/g, "<br/><br/>");
 
   const options1 = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
   const date1 = new Date();
@@ -111,6 +118,7 @@ const makeLetter = ({
 };
 
 export const markOrderPaid = async (orderId: string) => {
+  console.log('marking order paid', orderId);
   const docs = await orderCollection.where("orderId", "==", orderId).get();
   if (docs.empty) {
     throw new Error("no order with id " + orderId);
@@ -161,6 +169,7 @@ export const executeOrder = async (orderData: Order) => {
 
   await orderCollection.doc(orderData.orderId).update({ fulfilled: true });
   const lobResponses = await Promise.all([...lobPromises]);
-  console.log(lobResponses);
+  notifyUser(orderData.email, lobResponses);
+  // console.log(lobResponses);
   return lobResponses;
 };
