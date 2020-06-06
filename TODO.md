@@ -1,12 +1,14 @@
-- stripe pop-up in frontend
-- send data to backend
-
-- get backend to understand frontend - verify stripe
-- send a postcard from backend with default image
+- get it sending locally
+- move to firebase query listener model
 
 ----> SEND MILESTONE
 
-- deploy and see if it works
+- get it deploying with prod keys
+
+-----> BREAK
+
+- always collect an email
+- email people when their messages send
 
 -----------
 

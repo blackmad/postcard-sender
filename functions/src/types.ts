@@ -20,5 +20,7 @@ export const startPaymentRequestSchema = Joi.object({
   body: Joi.string().required(),
 });
 
-export type Order = Joi.extractType<typeof startPaymentRequestSchema>;
+export type Order = Joi.extractType<typeof startPaymentRequestSchema> & {
+  id: string;
+}
 export type StartPaymentRequestType = Joi.extractType<typeof startPaymentRequestSchema>;

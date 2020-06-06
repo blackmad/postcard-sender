@@ -136,6 +136,8 @@ function PostcardForm({ mailId }: Props) {
     newBodyText = newBodyText.replace(new RegExp(`\\[${key}\\]`, 'g'), value);
   });
 
+  const hasAllKeys = _.difference([...variables, ...SpecialVars], _.keys(variableMap)).length === 0;
+
   console.log(newBodyText);
 
   if (!template) {
@@ -149,7 +151,9 @@ function PostcardForm({ mailId }: Props) {
         <Inputs inputs={variables} updateField={updateField} />
         <Row>
           {/* <Form.Control as="textarea" value={bodyText} /> */}
-          {newBodyText}
+          <div style={{  whiteSpace: 'pre-wrap'}}>
+            {(newBodyText || '').replace(/\n/g, '\n\n')}
+          </div>
         </Row>
 
         <Addresses addresses={template.addresses} onAddressSelected={onAddressSelected} />
@@ -158,6 +162,7 @@ function PostcardForm({ mailId }: Props) {
           checkedAddresses={checkedAddresses}
           myAddress={myAddress}
           body={newBodyText}
+          formValid={hasAllKeys}
         />
       </Container>
   );

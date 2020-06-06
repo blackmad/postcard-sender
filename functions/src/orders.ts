@@ -1,8 +1,23 @@
 import { orderCollection } from "./database";
 import { Order, Address } from "./types";
 
-import { Lob } from './apis';
+import { Lob } from "./apis";
 
+// import mailgun = require("mailgun-js");
+
+// const notifyUser() {
+//   const DOMAIN = "sandboxde73a2919f44487791325367101f5da8.mailgun.org";
+//   const mg = mailgun({apiKey: "3b7073e73711a8aeddb5c884f256c8d3-a2b91229-5e8e5db0", domain: DOMAIN});
+//   const data = {
+//     from: "Mailgun Sandbox <postmaster@sandboxde73a2919f44487791325367101f5da8.mailgun.org>",
+//     to: "politics@blackmad.com",
+//     subject: "Hello",
+//     text: "Testing some Mailgun awesomness!"
+//   };
+//   mg.messages().send(data, function (error, body) {
+//     console.log(body);
+//   });
+// }
 
 const makeLetter = ({
   toAddress,
@@ -87,7 +102,7 @@ const makeLetter = ({
 
         <p>Dear ${toAddress.name},</p>
 
-        ${formattedBody}
+        ${formattedBody.replace(/\n/g, "<br/>")}
 
         <p>Sincerely,</p>
         <p class="signature">${fromAddress.name}</p>
@@ -99,7 +114,19 @@ const makeLetter = ({
 `;
 };
 
-export const finishOrder = async (orderId: string) => {
+export const markOrderPaid = async (orderId: string) => {
+  const docs = await orderCollection.where("orderId", "==", orderId).get();
+  if (docs.empty) {
+    throw new Error("no order with id " + orderId);
+  }
+
+  const order = docs.docs[0];
+
+  const orderPromise = order.ref.update({ paid: true });
+  return orderPromise;
+};
+
+export const executeOrderId = async (orderId: string) => {
   const docs = await orderCollection.where("orderId", "==", orderId).get();
   if (docs.empty) {
     throw new Error("no order with id " + orderId);
@@ -107,11 +134,13 @@ export const finishOrder = async (orderId: string) => {
 
   const order = docs.docs[0];
   const orderData: Order = order.data() as Order;
-  if (!orderData || !orderData.toAddresses || !orderData.body) {
-    throw new Error("no order with id " + orderId);
-  }
+  return executeOrder(orderData);
+};
 
-  const orderPromise = order.ref.update({ paid: true });
+export const executeOrder = async (orderData: Order) => {
+  if (!orderData || !orderData.toAddresses || !orderData.body) {
+    throw new Error("no order with id ");
+  }
 
   const lobPromises = orderData.toAddresses.map((toAddress: Address) => {
     return new Promise((resolve, reject) => {
@@ -134,5 +163,7 @@ export const finishOrder = async (orderId: string) => {
     });
   });
 
-  return Promise.all([...lobPromises, orderPromise]);
+  await orderCollection.doc(orderData.id).update({ fulfilled: true });
+  const lobResponses = await Promise.all([...lobPromises]);
+  return lobResponses;
 };

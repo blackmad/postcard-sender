@@ -13,10 +13,12 @@ const CheckoutForm = ({
   checkedAddresses,
   myAddress,
   body,
+  formValid,
 }: {
   checkedAddresses: Address[];
   myAddress: Address;
   body: string;
+  formValid: boolean,
 }) => {
   const [error, setError] = useState('');
   
@@ -60,12 +62,14 @@ const CheckoutForm = ({
     console.error(error);
   };
 
+  const isDisabled = checkedAddresses.length === 0 || !formValid;
+
   return (
     <>
     {error && <Alert variant='danger'>{error}</Alert>}
       <form onSubmit={handleSubmit}>
-        <Button variant="primary" type="submit" disabled={checkedAddresses.length === 0}>
-          {checkedAddresses.length > 0 ? `Pay $${totalAmount.toFixed(2)}` : "Select some addresses"}
+        <Button variant="primary" type="submit" disabled={isDisabled}>
+          {!isDisabled ? `Pay $${totalAmount.toFixed(2)}` : "Select some addresses and fill in all fields"}
         </Button>
       </form>
     </>
