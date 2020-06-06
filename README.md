@@ -6,9 +6,9 @@ running locally
   - `npm run start:dev-fe` 
 - backend is a little in flux
   ```
-  export STRIPE_PRODUCT_ID=prod_HPs8hjgW1GbBcY
-  export STRIPE_API_KEY=xxxxx
-  npm run start:dev-be
+  cd functions
+  firebase functions:config:get > .runtimeconfig.json
+  npm run serve
   ```
 
 

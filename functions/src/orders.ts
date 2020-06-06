@@ -1,8 +1,8 @@
 import { orderCollection } from "./database";
 import { Order, Address } from "./types";
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const Lob = require("lob")(process.env.LOB_API_KEY);
+import { Lob } from './apis';
+
 
 const makeLetter = ({
   toAddress,
@@ -99,10 +99,6 @@ const makeLetter = ({
 `;
 };
 
-import * as util from 'util';
-
-const lobLetterCreate = util.promisify(Lob.letters.create);
-
 export const finishOrder = async (orderId: string) => {
   const docs = await orderCollection.where("orderId", "==", orderId).get();
   if (docs.empty) {
@@ -114,18 +110,28 @@ export const finishOrder = async (orderId: string) => {
   if (!orderData || !orderData.toAddresses || !orderData.body) {
     throw new Error("no order with id " + orderId);
   }
-  
+
   const orderPromise = order.ref.update({ paid: true });
 
   const lobPromises = orderData.toAddresses.map((toAddress: Address) => {
-    return lobLetterCreate(
-      {
-        description: "Demo Letter",
-        to: toAddress,
-        from: orderData.fromAddress,
-        file: makeLetter({toAddress, fromAddress: orderData.fromAddress, body: orderData.body})
-      }
-    );
+    return new Promise((resolve, reject) => {
+      Lob.letters.create(
+        {
+          description: "Demo Letter",
+          to: toAddress,
+          from: orderData.fromAddress,
+          file: makeLetter({ toAddress, fromAddress: orderData.fromAddress, body: orderData.body }),
+          color: false,
+        },
+        (err: any, body: any) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(body);
+          }
+        }
+      );
+    });
   });
 
   return Promise.all([...lobPromises, orderPromise]);

@@ -1,8 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require("dotenv").config();
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const stripe = require("stripe")(process.env.STRIPE_API_KEY);
+import { Config, stripe } from './apis';
 
 import * as express from "express";
 import * as asyncHandler from "express-async-handler";
@@ -34,7 +30,7 @@ app.post(
     const stripeSession = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [{
-        price: process.env.STRIPE_PRODUCT_ID,
+        price: Config.stripe.product_id,
         quantity: (toAddresses || []).length,
       }],
       client_reference_id: orderId,
@@ -67,6 +63,11 @@ app.post('/paymentWebhook',  asyncHandler(async (req, res) => {
       // Unexpected event type
       return res.status(400).end();
   }
+}));
+
+app.get('/forceOrder/:id',  asyncHandler(async (req, res) => {
+  await finishOrder(req.params.id as string);
+  return res.json({received: true});
 }));
 
 // app.get(

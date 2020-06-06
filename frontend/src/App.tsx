@@ -11,11 +11,9 @@ import { LinkContainer } from "react-router-bootstrap";
 
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
-import NavItem from "react-bootstrap/NavItem";
 
 import Create from "./Create";
 import PostcardForm from "./PostcardForm";
-import Login from "./Login";
 import Success from "./Success";
 
 import About from "./About";
@@ -69,14 +67,11 @@ function App() {
         <Route path="/card">
           <Cards />
         </Route>
-        <Route path="/">
-          <Home />
-        </Route>
-        <Route path="/login">
-          <Login />
-        </Route>
         <Route path="/success">
           <Success />
+        </Route>
+        <Route path="/">
+          <Home />
         </Route>
       </Switch>
     </Router>
