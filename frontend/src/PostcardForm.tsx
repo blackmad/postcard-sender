@@ -8,9 +8,6 @@ import Form from "react-bootstrap/Form";
 
 import "./App.css";
 
-import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
-
 import firebase from "firebase/app";
 import "firebase/firestore";
 
@@ -18,9 +15,6 @@ import { Template, Address } from "./types";
 import CheckoutForm from "./CheckoutForm";
 import MyAddressInput from "./MyAddressInput";
 
-// Make sure to call `loadStripe` outside of a component’s render to avoid
-// recreating the `Stripe` object on every render.
-const stripePromise = loadStripe("pk_test_JJ1eMdKN0Hp4UFJ6kWXWO4ix00jtXzq5XG");
 
 const firebaseConfig = {
   apiKey: "AIzaSyAiQLnfziASZ6GGByNDLV3E7WkhtOtfi9s",
@@ -158,7 +152,6 @@ function PostcardForm() {
   console.log(newBodyText);
 
   return (
-    <Elements stripe={stripePromise}>
       <Container>
         <MyAddressInput updateAddress={updateAddress} />
 
@@ -176,7 +169,6 @@ function PostcardForm() {
           body={newBodyText}
         />
       </Container>
-    </Elements>
   );
 }
 
