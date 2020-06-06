@@ -1,9 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
-import * as _ from "lodash";
-
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
 import Form from "react-bootstrap/Form";
 
 import { Address } from "./types";

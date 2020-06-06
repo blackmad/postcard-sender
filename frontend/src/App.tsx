@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import PostcardForm from './PostcardForm';
 import 'bootstrap/dist/css/bootstrap.min.css';
 

@@ -152,7 +152,7 @@ function PostcardForm() {
   console.log(variableMap);
 
   _.forEach(variableMap, (value, key) => {
-    newBodyText = newBodyText.replace(new RegExp(`[${key}]`, 'g'), value);
+    newBodyText = newBodyText.replace(new RegExp(`\\[${key}\\]`, 'g'), value);
   });
 
   console.log(newBodyText);
@@ -170,7 +170,11 @@ function PostcardForm() {
 
         <Addresses addresses={template.addresses} onAddressSelected={onAddressSelected} />
 
-        <CheckoutForm checkedAddresses={checkedAddresses} />
+        <CheckoutForm 
+          checkedAddresses={checkedAddresses}
+          myAddress={myAddress}
+          body={newBodyText}
+        />
       </Container>
     </Elements>
   );

@@ -49,17 +49,26 @@ interface SendRequestSchema extends ValidatedRequestSchema {
   [ContainerTypes.Query]: Joi.extractType<typeof sendRequestSchema>;
 }
 
-app.get('/startPayment', async (req, res) => {
-  const amount = req.query.amount;
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount,
-    currency: "usd",
-    // Verify your integration in this guide by including this parameter
-    metadata: { integration_check: "accept_a_payment" },
-  });
-
-  res.json({client_secret: paymentIntent.client_secret});
+const startPaymentRequestSchema = Joi.object({
+  myAddress: addressSchema.required(),
+  toAddresses: Joi.array().items(addressSchema).min(1),
+  body: Joi.string().required(),
 });
+
+interface StartPaymentRequestSchema extends ValidatedRequestSchema {
+  [ContainerTypes.Query]: Joi.extractType<typeof startPaymentRequestSchema>;
+}
+
+
+app.post(
+  "/startPayment",
+  validator.body(sendRequestSchema),
+  asyncHandler(async (req: ValidatedRequest<StartPaymentRequestSchema>, res) => {
+    console.log(req.body);
+    console.log(req.query);
+    // res.end(`Hello ${req.query.name}!`)
+  })
+);
 
 app.post(
   "/send",
@@ -68,8 +77,6 @@ app.post(
     console.log(req.body);
     console.log(req.query);
     // res.end(`Hello ${req.query.name}!`)
-
-  
   })
 );
 

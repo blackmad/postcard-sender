@@ -9,7 +9,15 @@ import { Address, POSTCARD_COST } from "./types";
 
 import Button from "react-bootstrap/Button";
 
-const CheckoutForm = ({checkedAddresses}: {checkedAddresses: Address[]}) => {
+const CheckoutForm = ({
+  checkedAddresses,
+  myAddress,
+  body,
+}: {
+  checkedAddresses: Address[];
+  myAddress: Address;
+  body: string;
+}) => {
   const stripe = useStripe();
   const elements = useElements();
   const [paymentRequest, setPaymentRequest] = useState(null as any);
@@ -18,12 +26,13 @@ const CheckoutForm = ({checkedAddresses}: {checkedAddresses: Address[]}) => {
 
   useEffect(() => {
     if (stripe) {
+
       const pr = stripe.paymentRequest({
         country: "US",
         currency: "usd",
         total: {
           label: "Demo total",
-          amount: totalAmount,
+          amount: totalAmount*100,
         },
         requestPayerName: true,
         requestPayerEmail: true,
@@ -35,11 +44,11 @@ const CheckoutForm = ({checkedAddresses}: {checkedAddresses: Address[]}) => {
         }
       });
     }
-  }, [stripe]);
+  }, [stripe, totalAmount]);
 
-  if (paymentRequest) {
-    return <PaymentRequestButtonElement options={{ paymentRequest }} />;
-  }
+  // if (paymentRequest) {
+  //   return <PaymentRequestButtonElement options={{ paymentRequest }} />;
+  // }
 
   const handleSubmit = async (event: any) => {
     // We don't want to let default form submission happen here,
@@ -52,24 +61,38 @@ const CheckoutForm = ({checkedAddresses}: {checkedAddresses: Address[]}) => {
       return;
     }
 
-    var stripeClientSecret = await fetch('/secret').then(function(response) {
-      return response.json();
-    }).then(function(responseJson) {
-      return responseJson.client_secret;
-    });
+    var stripeClientSecret = await fetch('/startPayment', {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        myAddress,
+        checkedAddresses,
+        body
+      })
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (responseJson) {
+        return responseJson.client_secret;
+      });
 
     const result = await stripe.confirmCardPayment(stripeClientSecret, {
       payment_method: {
         card: elements.getElement(CardElement)!,
         billing_details: {
-          name: "Jenny Rosen",
+          name: myAddress.name,
+          address: {
+            postal_code: myAddress.address_zip,
+          },
         },
       },
     });
 
     if (result.error) {
       // Show error to your customer (e.g., insufficient funds)
-      console.log(result.error.message);
+      window.alert(result.error.message);
     } else {
       // The payment has been processed!
       if (result.paymentIntent?.status === "succeeded") {
@@ -100,9 +123,9 @@ const CheckoutForm = ({checkedAddresses}: {checkedAddresses: Address[]}) => {
           },
         }}
       />
-      
+
       <Button variant="primary" type="submit" disabled={checkedAddresses.length === 0}>
-        {checkedAddresses.length > 0 ? `Pay \$${totalAmount.toFixed(2)}` : 'Select some addresses'}
+        {checkedAddresses.length > 0 ? `Pay $${totalAmount.toFixed(2)}` : "Select some addresses"}
       </Button>
     </form>
   );

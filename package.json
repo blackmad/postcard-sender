@@ -6,13 +6,16 @@
   "scripts": {
     "lint": "npx eslint --fix --ext .ts src",
     "test": "echo \"Yo let's write a test\"",
-    "start:dev": "node --inspect=5858 -r ts-node/register ./server.ts",
+    "start:dev": "PORT=3000 node -r ts-node/register ./server.ts",
+    "start:dev-fe": "cd frontend && HTTPS=true PORT=3001 npm start",
     "start:watch": "nodemon",
-    "build": "tsc"
+    "build": "cd frontend && npm run build && cd .. && cp -R frontend/build/ public/ && mv public/index.html public/app.html",
+    "dev": "concurrently \"NODE_ENV=development PORT=3000 nodemon\" \"npm run start:dev-fe\"",
+    "postinstall": "cd frontend && npm install"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/blackmad/wondervillain.git"
+    "url": "git+https://github.com/blackmad/postcard-sender.git"
   },
   "author": "",
   "license": "ISC",
