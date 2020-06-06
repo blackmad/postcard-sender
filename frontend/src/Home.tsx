@@ -21,7 +21,7 @@ const Home = () => {
             <h1>Active Campaigns</h1>
             {templates.map(template => {
                 const pathname = "/card/" + template.id;
-                return <Link to={pathname}>{template.name}</Link>;
+                return <Link key={pathname} to={pathname}>{template.name}</Link>;
             })}
         </Container>
     );

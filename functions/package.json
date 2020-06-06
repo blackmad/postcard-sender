@@ -2,7 +2,7 @@
   "name": "functions",
   "scripts": {
     "build": "tsc",
-    "serve": "npm run build && HOST=https://localhost:3001 GOOGLE_APPLICATION_CREDENTIALS=../creds/political-postcards-firebase-adminsdk.json firebase emulators:start --only functions",
+    "serve": "npm run build && HOST=http://localhost:3000 GOOGLE_APPLICATION_CREDENTIALS=../creds/political-postcards-firebase-adminsdk.json firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",

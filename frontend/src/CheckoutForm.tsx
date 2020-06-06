@@ -7,7 +7,7 @@ import Button from "react-bootstrap/Button";
 import { loadStripe } from "@stripe/stripe-js";
 // Make sure to call `loadStripe` outside of a component’s render to avoid
 // recreating the `Stripe` object on every render.
-const stripePromise = loadStripe("pk_test_JJ1eMdKN0Hp4UFJ6kWXWO4ix00jtXzq5XG");
+const stripePromise = loadStripe("pk_test_51GqpRpGLGlm5kFVxzwruVzMZ2Bc07pqosMzyiZd6ixInJHEq6MgFE9v1kRVJZUUhuOT3X2XdfHj31oknZEmKK6KT004CUm09hp");
 
 const CheckoutForm = ({
   checkedAddresses,
@@ -56,8 +56,8 @@ const CheckoutForm = ({
     const stripe = await stripePromise;
     const { error } = await stripe!.redirectToCheckout({
       sessionId: stripeSessionId,
-      clientReferenceId: orderId,
     });
+    console.error(error);
   };
 
   return (

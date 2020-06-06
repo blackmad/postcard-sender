@@ -2,14 +2,7 @@
 require("dotenv").config();
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-// const Lob = require("lob")(process.env.LOB_API_KEY);
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const stripe = require("stripe")(process.env.STRIPE_API_KEY);
-
-import Joi = require("@hapi/joi");
-
-import "joi-extract-type";
 
 import * as express from "express";
 import * as asyncHandler from "express-async-handler";
@@ -17,27 +10,11 @@ import * as asyncHandler from "express-async-handler";
 import bodyParser = require("body-parser");
 const app = express();
 
-import admin = require("firebase-admin");
-admin.initializeApp();
+import { startPaymentRequestSchema, StartPaymentRequestType } from "./types";
+import { orderCollection } from "./database";
+import { finishOrder } from "./orders";
 
 app.use(bodyParser.json());
-
-const addressSchema = Joi.object({
-  name: Joi.string().required(),
-  address_line1: Joi.string().required(),
-  address_line2: Joi.string().optional(),
-  address_city: Joi.string().required(),
-  address_state: Joi.string().required(),
-  address_zip: Joi.string().required(),
-  address_country: Joi.string(),
-});
-
-const startPaymentRequestSchema = Joi.object({
-  fromAddress: addressSchema.required(),
-  toAddresses: Joi.array().items(addressSchema).min(1),
-  body: Joi.string(),
-});
-
 
 app.post(
   "/startPayment",
@@ -48,30 +25,49 @@ app.post(
       return;
     }
 
-    const body = req.body as Joi.extractType<typeof startPaymentRequestSchema>;
+    const body = req.body as StartPaymentRequestType;
     const toAddresses = body.toAddresses;
 
+    const orderRef = orderCollection.doc();
+    const orderId = orderRef.id;
+
     const stripeSession = await stripe.checkout.sessions.create({
-      payment_method_types: ['card', 'ideal'],
+      payment_method_types: ['card'],
       line_items: [{
         price: process.env.STRIPE_PRODUCT_ID,
         quantity: (toAddresses || []).length,
-        currency: 'USD',
       }],
+      client_reference_id: orderId,
       mode: 'payment',
       success_url: `${process.env.HOST}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.HOST}/cancel`,
     });
 
-    admin
-      .firestore()
-      .collection("orders")
-      .add(req.query)
-      .then((writeResult) => {
-        res.json({ sessionId: stripeSession.id, orderId: writeResult.id });
+    console.dir({sesionId:  stripeSession.id, orderId }, {depth: 10})
+
+   orderRef
+      .set({...req.query, orderId})
+      .then(() => {
+        res.json({ sessionId: stripeSession.id });
       });
   })
 );
+
+// Match the raw body to content type application/json
+app.post('/paymentWebhook',  asyncHandler(async (req, res) => {
+  const event = req.body;
+
+  // Handle the event
+  switch (event.type) {
+    case 'checkout.session.completed':
+        console.log(event.data.object.client_reference_id);
+        await finishOrder(event.data.object.client_reference_id);
+        return res.json({received: true});
+    default:
+      // Unexpected event type
+      return res.status(400).end();
+  }
+}));
 
 // app.get(
 //   '/template/:id',

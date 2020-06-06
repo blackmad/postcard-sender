@@ -8,6 +8,7 @@ import {
   useParams,
 } from "react-router-dom";
 import { LinkContainer } from "react-router-bootstrap";
+
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
 import NavItem from "react-bootstrap/NavItem";
@@ -15,6 +16,8 @@ import NavItem from "react-bootstrap/NavItem";
 import Create from './Create';
 import PostcardForm from './PostcardForm';
 import Login from './Login';
+import Success from "./Success";
+
 import About from './About';
 import Home from './Home';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -39,7 +42,7 @@ function App() {
   return (
     <Router>
       <Navbar bg="light" expand="lg">
-        <Navbar.Brand href="#home">React-Bootstrap</Navbar.Brand>
+        <Navbar.Brand href="#home">Post-to-Pol</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="mr-auto">
@@ -69,8 +72,13 @@ function App() {
         <Route path="/">
           <Home />
         </Route>
+<<<<<<< HEAD
 	<Route path="/login">
             <Login />
+=======
+        <Route path="/success">
+          <Success />
+>>>>>>> sending letters almost works
         </Route>
       </Switch>
     </Router>

@@ -19,3 +19,10 @@
 - integrate with google civic data api
 
 - have data pulled from server from static jekyll-ish files????
+
+- add signature verification to stripe webhook
+
+-----
+
+- debounce submit button on click
+- require all fields in FE
