@@ -8,7 +8,7 @@ export const helloWorld = functions.https.onRequest((request, response) => {
 });
 
  
-import app from './server';
+import app from './api';
 import { executeOrder } from './orders';
 import { Order } from './types';
 
@@ -27,6 +27,8 @@ exports.executeOrder = functions.firestore
       if (previousValue.paid || !newValue.paid || newValue.fulfilled || previousValue.fulfilled) {
         return;
       }
+
+      console.log({previousValue, newValue})
 
       executeOrder(newValue as Order);
     });

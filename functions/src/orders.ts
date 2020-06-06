@@ -163,7 +163,7 @@ export const executeOrder = async (orderData: Order) => {
     });
   });
 
-  await orderCollection.doc(orderData.id).update({ fulfilled: true });
+  await orderCollection.doc(orderData.orderId).update({ fulfilled: true });
   const lobResponses = await Promise.all([...lobPromises]);
   return lobResponses;
 };
