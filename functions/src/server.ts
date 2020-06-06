@@ -29,13 +29,13 @@ const addressSchema = Joi.object({
   address_city: Joi.string().required(),
   address_state: Joi.string().required(),
   address_zip: Joi.string().required(),
-  address_country: Joi.string().required(),
+  address_country: Joi.string(),
 });
 
 const startPaymentRequestSchema = Joi.object({
   fromAddress: addressSchema.required(),
   toAddresses: Joi.array().items(addressSchema).min(1),
-  body: Joi.string,
+  body: Joi.string(),
 });
 
 
@@ -44,7 +44,8 @@ app.post(
   asyncHandler(async (req, res) => {
     const validation = startPaymentRequestSchema.validate(req.body);
     if (validation.error) {
-      res.status(500).json(validation.error);
+      res.status(500).json({errors: validation.error.details});
+      return;
     }
 
     const body = req.body as Joi.extractType<typeof startPaymentRequestSchema>;
@@ -55,6 +56,7 @@ app.post(
       line_items: [{
         price: process.env.STRIPE_PRODUCT_ID,
         quantity: (toAddresses || []).length,
+        currency: 'USD',
       }],
       mode: 'payment',
       success_url: `${process.env.HOST}/success?session_id={CHECKOUT_SESSION_ID}`,

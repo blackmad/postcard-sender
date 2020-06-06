@@ -5,6 +5,12 @@ running locally
 - to start the frontend 
   - `npm run start:dev-fe` 
 - backend is a little in flux
+  ```
+  export STRIPE_PRODUCT_ID=prod_HPs8hjgW1GbBcY
+  export STRIPE_API_KEY=xxxxx
+  npm run start:dev-be
+  ```
+
 
 
 deploy

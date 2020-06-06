@@ -8,6 +8,6 @@ export const helloWorld = functions.https.onRequest((request, response) => {
 });
 
  
-// import app from './server';
+import app from './server';
 
-// exports.api = functions.https.onRequest(app);
+exports.api = functions.https.onRequest(app);

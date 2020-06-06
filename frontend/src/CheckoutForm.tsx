@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Address, POSTCARD_COST } from "./types";
+
+import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 
 import { loadStripe } from "@stripe/stripe-js";
@@ -16,6 +18,8 @@ const CheckoutForm = ({
   myAddress: Address;
   body: string;
 }) => {
+  const [error, setError] = useState('');
+  
   const totalAmount = checkedAddresses.length * POSTCARD_COST;
 
   const handleSubmit = async (event: any) => {
@@ -23,7 +27,7 @@ const CheckoutForm = ({
     // which would refresh the page.
     event.preventDefault();
 
-    var response = await fetch('/startPayment', {
+    var response = await fetch('/political-postcards/us-central1/api/startPayment', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -36,7 +40,14 @@ const CheckoutForm = ({
     })
       .then(function (response) {
         return response.json();
-      });
+      })
+
+    if (response.errors) {
+      setError(response.errors.map((e: any) => e.message).join(', '));
+      return;
+    } else {
+      setError('');
+    }
 
     const stripeSessionId = response.sessionId;
     const orderId = response.orderId;
@@ -50,11 +61,14 @@ const CheckoutForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Button variant="primary" type="submit" disabled={checkedAddresses.length === 0}>
-        {checkedAddresses.length > 0 ? `Pay $${totalAmount.toFixed(2)}` : "Select some addresses"}
-      </Button>
-    </form>
+    <>
+    {error && <Alert variant='danger'>{error}</Alert>}
+      <form onSubmit={handleSubmit}>
+        <Button variant="primary" type="submit" disabled={checkedAddresses.length === 0}>
+          {checkedAddresses.length > 0 ? `Pay $${totalAmount.toFixed(2)}` : "Select some addresses"}
+        </Button>
+      </form>
+    </>
   );
 };
 
