@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Address, POSTCARD_COST } from "./types";
+import { Address, LETTER_COST } from "./types";
 
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
@@ -22,8 +22,8 @@ const CheckoutForm = ({
 }) => {
   const [error, setError] = useState('');
   
-  const totalAmount = checkedAddresses.length * POSTCARD_COST;
-
+  const totalAmount = checkedAddresses.length * LETTER_COST;
+5
   const handleSubmit = async (event: any) => {
     // We don't want to let default form submission happen here,
     // which would refresh the page.
@@ -69,7 +69,7 @@ const CheckoutForm = ({
     {error && <Alert variant='danger'>{error}</Alert>}
       <form onSubmit={handleSubmit}>
         <Button variant="primary" type="submit" disabled={isDisabled}>
-          {!isDisabled ? `Pay $${totalAmount.toFixed(2)}` : "Select some addresses and fill in all fields"}
+          {!isDisabled ? `Mail ${checkedAddresses.length} letters for $${totalAmount.toFixed(2)}` : "Select some addresses and fill in all fields"}
         </Button>
       </form>
     </>

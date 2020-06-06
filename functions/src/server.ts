@@ -21,6 +21,8 @@ app.use(bodyParser.json());
 app.post(
   "/startPayment",
   asyncHandler(async (req, res) => {
+    const host = req.get('Origin') || req.get('origin');
+
     const validation = startPaymentRequestSchema.validate(req.body);
     if (validation.error) {
       res.status(500).json({ errors: validation.error.details });
@@ -43,8 +45,8 @@ app.post(
       ],
       client_reference_id: orderId,
       mode: "payment",
-      success_url: `${process.env.HOST}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.HOST}/cancel`,
+      success_url: `${host}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${host}/cancel`,
     });
 
     console.dir({ sesionId: stripeSession.id, orderId }, { depth: 10 });
