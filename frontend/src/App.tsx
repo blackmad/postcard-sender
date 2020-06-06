@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   BrowserRouter as Router,
   Switch,
@@ -6,12 +6,19 @@ import {
   Link,
   useRouteMatch,
   useParams,
-} from 'react-router-dom';
+} from "react-router-dom";
 
-import PostcardForm from './PostcardForm';
-import About from './About';
-import Home from './Home';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { LinkContainer } from "react-router-bootstrap";
+
+import PostcardForm from "./PostcardForm";
+import About from "./About";
+import Home from "./Home";
+import "bootstrap/dist/css/bootstrap.min.css";
+
+import Navbar from "react-bootstrap/Navbar";
+import Nav from "react-bootstrap/Nav";
+import NavItem from "react-bootstrap/NavItem";
+
 
 function Cards() {
   let match = useRouteMatch();
@@ -26,35 +33,38 @@ function Cards() {
 
 function Card() {
   let { cardId } = useParams();
-  return <PostcardForm mailId={cardId} />
+  return <PostcardForm mailId={cardId} />;
 }
 
 function App() {
   return (
     <Router>
-      <div>
-        <nav>
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/about">About</Link>
-            </li>
-          </ul>
-        </nav>
-        <Switch>
-          <Route path="/about">
-            <About />
-          </Route>
-          <Route path="/card">
-            <Cards />
-          </Route>
-          <Route path="/">
-            <Home />
-          </Route>
-        </Switch>
-      </div>
+      <Navbar bg="light" expand="lg">
+        <Navbar.Brand href="#home">React-Bootstrap</Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="mr-auto">
+            <LinkContainer to="/home">
+              <Nav.Link>Home</Nav.Link>
+            </LinkContainer>
+            <LinkContainer to="/about">
+              <Nav.Link>About</Nav.Link>
+            </LinkContainer>
+          </Nav>
+        </Navbar.Collapse>
+      </Navbar>
+
+      <Switch>
+        <Route path="/about">
+          <About />
+        </Route>
+        <Route path="/card">
+          <Cards />
+        </Route>
+        <Route path="/">
+          <Home />
+        </Route>
+      </Switch>
     </Router>
   );
 }

@@ -138,6 +138,10 @@ function PostcardForm({ mailId }: Props) {
 
   console.log(newBodyText);
 
+  if (!template) {
+    return <Container>Loading ...</Container>
+  }
+
   return (
       <Container>
         <MyAddressInput updateAddress={updateAddress} />
