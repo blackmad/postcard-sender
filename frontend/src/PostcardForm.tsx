@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 
+import * as _ from 'lodash';
+
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Form from "react-bootstrap/Form";
@@ -36,7 +38,7 @@ var db = firebase.firestore();
 
 function parseVars(template: string) {
   const match = template.match(/\[[^\]]+\]/g);
-  return match?.map((s) => s.replace("[", "").replace("]", ""));
+  return _.uniq(match?.map((s) => s.replace("[", "").replace("]", "")));
 }
 
 function Inputs({
@@ -53,7 +55,7 @@ function Inputs({
           updateField(input, event.target.value);
         };
         return (
-          <Row>
+          <Row key={input}>
             <Form.Group>
               <Form.Label>{input}</Form.Label>
               <Form.Control type="text" onChange={onChange} />
@@ -70,6 +72,8 @@ function PostcardForm() {
   const [bodyText, setBodyText] = useState("");
   const [variables, setVariables] = useState([] as string[]);
 
+  const variableMap: Record<string, string> = {}
+
   const mailId = window.location.search.substr(1);
   useEffect(() => {
     db.collection("templates")
@@ -84,8 +88,18 @@ function PostcardForm() {
       });
   }, []);
 
+  const renderBody = () => {
+    let newBodyText = template.template;
+    
+    _.forEach(variableMap, (value, key) => {
+      newBodyText = newBodyText.replace(`[${key}]`, value);
+    });
+    setBodyText(newBodyText);
+  }
+
   const updateField = (key: string, value: string) => {
-    setBodyText(bodyText.replace(key, value));
+    variableMap[key] = value;
+    renderBody();
   };
 
   return (
