@@ -13,6 +13,7 @@ import { CardElement } from "@stripe/react-stripe-js";
 
 import firebase from "firebase/app";
 import "firebase/firestore";
+import { Template } from "./types";
 
 // Make sure to call `loadStripe` outside of a component’s render to avoid
 // recreating the `Stripe` object on every render.
@@ -32,21 +33,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
 
-interface Address {
-  name: string;
-  address_line1: string;
-  address_line2?: string;
-  address_city: string;
-  address_state: string;
-  address_zip: string;
-  address_country: string;
-}
-
-interface Template {
-  template: string;
-  fields: string[];
-  addresses: Address[];
-}
 
 function parseVars(template: string) {
   const match = template.match(/\[[^\]]+\]/g);
