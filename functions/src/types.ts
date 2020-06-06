@@ -9,7 +9,7 @@ export const addressSchema = Joi.object({
   address_city: Joi.string().required(),
   address_state: Joi.string().required(),
   address_zip: Joi.string().required(),
-  address_country: Joi.string(),
+  address_country: Joi.string().default('USA'),
 });
 
 export type Address = Joi.extractType<typeof addressSchema>;

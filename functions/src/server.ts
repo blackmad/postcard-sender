@@ -46,7 +46,7 @@ app.post(
     console.dir({sesionId:  stripeSession.id, orderId }, {depth: 10})
 
    orderRef
-      .set({...req.query, orderId})
+      .set({...body, orderId})
       .then(() => {
         res.json({ sessionId: stripeSession.id });
       });

@@ -13,14 +13,14 @@ import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
 import NavItem from "react-bootstrap/NavItem";
 
-import Create from './Create';
-import PostcardForm from './PostcardForm';
-import Login from './Login';
+import Create from "./Create";
+import PostcardForm from "./PostcardForm";
+import Login from "./Login";
 import Success from "./Success";
 
-import About from './About';
-import Home from './Home';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import About from "./About";
+import Home from "./Home";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function Cards() {
   let match = useRouteMatch();
@@ -72,13 +72,11 @@ function App() {
         <Route path="/">
           <Home />
         </Route>
-<<<<<<< HEAD
-	<Route path="/login">
-            <Login />
-=======
+        <Route path="/login">
+          <Login />
+        </Route>
         <Route path="/success">
           <Success />
->>>>>>> sending letters almost works
         </Route>
       </Switch>
     </Router>
