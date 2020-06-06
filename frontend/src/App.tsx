@@ -7,18 +7,17 @@ import {
   useRouteMatch,
   useParams,
 } from "react-router-dom";
-
 import { LinkContainer } from "react-router-bootstrap";
-
-import PostcardForm from "./PostcardForm";
-import About from "./About";
-import Home from "./Home";
-import "bootstrap/dist/css/bootstrap.min.css";
-
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
 import NavItem from "react-bootstrap/NavItem";
 
+import Create from './Create';
+import PostcardForm from './PostcardForm';
+import Login from './Login';
+import About from './About';
+import Home from './Home';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function Cards() {
   let match = useRouteMatch();
@@ -47,6 +46,9 @@ function App() {
             <LinkContainer to="/home">
               <Nav.Link>Home</Nav.Link>
             </LinkContainer>
+            <LinkContainer to="/create">
+              <Nav.Link>Create Campaign</Nav.Link>
+            </LinkContainer>
             <LinkContainer to="/about">
               <Nav.Link>About</Nav.Link>
             </LinkContainer>
@@ -58,11 +60,17 @@ function App() {
         <Route path="/about">
           <About />
         </Route>
+        <Route path="/create">
+          <Create />
+        </Route>
         <Route path="/card">
           <Cards />
         </Route>
         <Route path="/">
           <Home />
+        </Route>
+	<Route path="/login">
+            <Login />
         </Route>
       </Switch>
     </Router>
