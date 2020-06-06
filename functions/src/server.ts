@@ -1,25 +1,13 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require("dotenv").config();
 
-import { POSTCARD_COST } from "../../frontend/src/types";
-
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const Lob = require("lob")(process.env.LOB_API_KEY);
+// const Lob = require("lob")(process.env.LOB_API_KEY);
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const stripe = require("stripe")(process.env.STRIPE_API_KEY);
 
 import Joi = require("@hapi/joi");
-
-import {
-  ContainerTypes,
-  // Use this as a replacement for express.Request
-  ValidatedRequest,
-  // Extend from this to define a valid schema type/interface
-  ValidatedRequestSchema,
-  // Creates a validator that generates middlewares
-  createValidator,
-} from "express-joi-validation";
 
 import "joi-extract-type";
 
@@ -28,7 +16,6 @@ import * as asyncHandler from "express-async-handler";
 
 import bodyParser = require("body-parser");
 const app = express();
-const validator = createValidator();
 
 import admin = require("firebase-admin");
 admin.initializeApp();
@@ -51,21 +38,23 @@ const startPaymentRequestSchema = Joi.object({
   body: Joi.string,
 });
 
-interface StartPaymentRequestSchema extends ValidatedRequestSchema {
-  [ContainerTypes.Query]: Joi.extractType<typeof startPaymentRequestSchema>;
-}
 
 app.post(
   "/startPayment",
-  validator.body(startPaymentRequestSchema),
-  asyncHandler(async (_req, res) => {
-    const toAddresses = req.query.toAddresses;
+  asyncHandler(async (req, res) => {
+    const validation = startPaymentRequestSchema.validate(req.body);
+    if (validation.error) {
+      res.status(500).json(validation.error);
+    }
+
+    const body = req.body as Joi.extractType<typeof startPaymentRequestSchema>;
+    const toAddresses = body.toAddresses;
 
     const stripeSession = await stripe.checkout.sessions.create({
       payment_method_types: ['card', 'ideal'],
       line_items: [{
         price: process.env.STRIPE_PRODUCT_ID,
-        quantity: toAddresses.length,
+        quantity: (toAddresses || []).length,
       }],
       mode: 'payment',
       success_url: `${process.env.HOST}/success?session_id={CHECKOUT_SESSION_ID}`,
