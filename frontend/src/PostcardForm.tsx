@@ -11,11 +11,12 @@ import "./App.css";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
-import { CardElement } from "@stripe/react-stripe-js";
 
 import firebase from "firebase/app";
 import "firebase/firestore";
+
 import { Template } from "./types";
+import CheckoutForm from './CheckoutForm';
 
 // Make sure to call `loadStripe` outside of a component’s render to avoid
 // recreating the `Stripe` object on every render.
@@ -34,7 +35,6 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
-
 
 function parseVars(template: string) {
   const match = template.match(/\[[^\]]+\]/g);
@@ -86,7 +86,7 @@ function PostcardForm() {
         setVariables(parseVars(template.template) || []);
         setBodyText(template.template);
       });
-  }, []);
+  }, [mailId]);
 
   const renderBody = () => {
     let newBodyText = template.template;
@@ -102,6 +102,7 @@ function PostcardForm() {
     renderBody();
   };
 
+
   return (
     <Elements stripe={stripePromise}>
       <Container>
@@ -109,22 +110,8 @@ function PostcardForm() {
         <Row>
         <Form.Control as="textarea" value={bodyText} />
         </Row>
-        {/* <CardElement
-          options={{
-            style: {
-              base: {
-                fontSize: "16px",
-                color: "#424770",
-                "::placeholder": {
-                  color: "#aab7c4",
-                },
-              },
-              invalid: {
-                color: "#9e2146",
-              },
-            },
-          }}
-        /> */}
+        <CheckoutForm />
+
       </Container>
     </Elements>
   );

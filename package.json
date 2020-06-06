@@ -22,6 +22,7 @@
     "bootstrap": "^4.5.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "express-async-handler": "^1.1.4",
     "express-joi-validation": "^4.0.3",
     "firebase": "^7.15.0",
     "joi-extract-type": "^15.0.2",
