@@ -26,10 +26,12 @@ const makeLetter = ({
   toAddress,
   fromAddress,
   body,
+  email,
 }: {
   toAddress: Address;
   fromAddress: Address;
   body: string;
+  email: string;
 }): string => {
   const formattedBody = body.replace(/\n/g, "<br/><br/>");
 
@@ -107,8 +109,15 @@ const makeLetter = ({
 
         ${formattedBody.replace(/\n/g, "<br/>")}
 
-        <p>Sincerely,</p>
+        <p>Thank you,</p>
         <p class="signature">${fromAddress.name}</p>
+
+        <br/>
+        <p>
+          ${fromAddress.name}<br/>
+          ${fromAddress.address_line1}<br/>
+          ${fromAddress.address_city}, ${fromAddress.address_state} ${fromAddress.address_zip}<br/>
+          ${email}
       </div>
     </div>
   </div>
@@ -153,7 +162,7 @@ export const executeOrder = async (orderData: Order) => {
           description: "Demo Letter",
           to: toAddress,
           from: orderData.fromAddress,
-          file: makeLetter({ toAddress, fromAddress: orderData.fromAddress, body: orderData.body }),
+          file: makeLetter({ email: orderData.email, toAddress, fromAddress: orderData.fromAddress, body: orderData.body }),
           color: false,
         },
         (err: any, body: any) => {

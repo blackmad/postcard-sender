@@ -172,7 +172,7 @@ function PostcardForm({ mailId }: Props) {
             whiteSpace: "pre-wrap",
           }}
         >
-          {(newBodyText || "").replace(/\n/g, "\n\n")}
+          {newBodyText}
         </div>
       </Row>
 

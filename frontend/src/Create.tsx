@@ -55,6 +55,7 @@ export default function Create() {
     return (
         <div>
             <h4>Create a new campaign</h4>
+            (This is not implemented yet! Would you like to help??? Get in touch - david@whizziwig.com)
             <CreateForm />
         </div>
     )
