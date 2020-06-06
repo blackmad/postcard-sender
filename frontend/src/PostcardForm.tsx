@@ -101,7 +101,7 @@ function PostcardForm() {
   const [variableMap, setVariableMap] = useState({} as Record<string, string>);
   const [checkedAddresses, setCheckedAddresses] = useState([] as Address[]);
 
-  const mailId = window.location.search.substr(1);
+  const mailId = window.location.search.substr(1) || window.location.pathname.substr(1);
   useEffect(() => {
     db.collection("templates")
       .doc(mailId)
