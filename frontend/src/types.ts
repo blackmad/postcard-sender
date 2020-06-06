@@ -14,4 +14,6 @@ export interface Template {
   template: string;
   fields: string[];
   addresses: Address[];
+  name: string;
+  id: string;
 }
