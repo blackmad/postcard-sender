@@ -19,7 +19,7 @@ import {
 import 'joi-extract-type'
 
 
-import express from "express";
+import * as express from "express";
 import bodyParser = require('body-parser');
 const app = express();
 const validator = createValidator()
@@ -37,8 +37,8 @@ const addressSchema = Joi.object({
 })
 
 const sendRequestSchema = Joi.object({
-  to: addressSchema,
-  from: addressSchema,
+  to: addressSchema.required(),
+  from: addressSchema.required(),
 });
 
 interface SendRequestSchema extends ValidatedRequestSchema {
@@ -50,7 +50,8 @@ app.post(
   validator.body(sendRequestSchema),
   (req: ValidatedRequest<SendRequestSchema>, res) => {
     console.log(req.body);
-    res.end(`Hello ${req.query.name}!`)
+    console.log(req.query);
+    // res.end(`Hello ${req.query.name}!`)
   }
 )
 
@@ -83,6 +84,8 @@ app.post(
 //   });
 // });
 
-app.listen(3000, () => {
+const port = process.env.PORT || 8080; // default port to listen
+
+app.listen(port, () => {
   console.log("Server running on port 3000");
 });

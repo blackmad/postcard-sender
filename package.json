@@ -5,7 +5,10 @@
   "main": "dist/index.js",
   "scripts": {
     "lint": "npx eslint --fix --ext .ts src",
-    "test": "echo \"Yo let's write a test\""
+    "test": "echo \"Yo let's write a test\"",
+    "start:dev": "node --inspect=5858 -r ts-node/register ./server.ts",
+    "start:watch": "nodemon",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -15,11 +18,14 @@
   "license": "ISC",
   "dependencies": {
     "@hapi/joi": "^17.1.1",
+    "bootstrap": "^4.5.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-joi-validation": "^4.0.3",
+    "firebase": "^7.15.0",
     "joi-extract-type": "^15.0.2",
     "lob": "^6.1.0",
+    "react-bootstrap": "^1.0.1",
     "stripe": "^8.60.0"
   },
   "devDependencies": {
