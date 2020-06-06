@@ -29,7 +29,7 @@ const CheckoutForm = ({
     // which would refresh the page.
     event.preventDefault();
 
-    var response = await fetch('/political-postcards/us-central1/api/startPayment', {
+    var response = await fetch('https://us-central1-political-postcards.cloudfunctions.net/api/startPayment', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

@@ -3,8 +3,14 @@ import { Config, stripe } from "./apis";
 import * as express from "express";
 import * as asyncHandler from "express-async-handler";
 
+import cors = require('cors');
+
 import bodyParser = require("body-parser");
 const app = express();
+
+app.use(cors({ origin: true }));
+
+
 
 import { startPaymentRequestSchema, StartPaymentRequestType } from "./types";
 import { orderCollection } from "./database";
