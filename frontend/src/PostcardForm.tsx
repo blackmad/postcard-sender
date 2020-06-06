@@ -88,14 +88,17 @@ function Inputs({
   );
 }
 
-function PostcardForm() {
+interface Props {
+  mailId: string;
+}
+
+function PostcardForm({ mailId }: Props) {
   const [template, setTemplate] = useState({} as Template);
   const [myAddress, setMyAddress] = useState({} as Address);
   const [variables, setVariables] = useState([] as string[]);
   const [variableMap, setVariableMap] = useState({} as Record<string, string>);
   const [checkedAddresses, setCheckedAddresses] = useState([] as Address[]);
 
-  const mailId = window.location.search.substr(1) || window.location.pathname.substr(1);
   useEffect(() => {
     db.collection("templates")
       .doc(mailId)

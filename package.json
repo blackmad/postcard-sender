@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "lint": "npx eslint --fix --ext .ts src",
+    "lint": "npx eslint --fix --ext .ts frontend/src",
     "test": "echo \"Yo let's write a test\"",
     "start:dev": "PORT=3000 node -r ts-node/register ./server.ts",
     "start:dev-fe": "cd frontend && HTTPS=true PORT=3001 npm start",
