@@ -25,8 +25,8 @@ exports.executeOrder = functions.firestore
       const previousValue = change.before.data();
 
       if (previousValue.paid || !newValue.paid || newValue.fulfilled || previousValue.fulfilled) {
-        return;
+        return true;
       }
 
-      executeOrder(newValue as Order);
+      return executeOrder(newValue as Order);
     });

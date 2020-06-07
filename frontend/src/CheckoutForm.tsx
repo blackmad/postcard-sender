@@ -72,12 +72,26 @@ const CheckoutForm = ({
 
   const isDisabled = checkedAddresses.length === 0 || !formValid || inSubmit;
 
+  let buttonText = "Select some addresses and fill in all fields";
+  if (inSubmit) {
+    buttonText = "Submitting ..."
+  } else if (checkedAddresses.length === 0 && !formValid) {
+    buttonText =  "Select some addresses and fill in all fields";
+  } else if (checkedAddresses.length === 0) {
+    buttonText =   "Select some addresses";
+  } else if (!formValid) {
+    buttonText = "Fill in all fields";
+  } else {
+    buttonText = "Mail ${checkedAddresses.length} letters for $${totalAmount.toFixed(2)}"
+  }
+
+
   return (
     <>
     {error && <Alert variant='danger'>{error}</Alert>}
       <form onSubmit={handleSubmit}>
         <Button variant="primary" type="submit" disabled={isDisabled}>
-          {!isDisabled ? `Mail ${checkedAddresses.length} letters for $${totalAmount.toFixed(2)}` : "Select some addresses and fill in all fields"}
+          {buttonText}
         </Button>
       </form>
     </>

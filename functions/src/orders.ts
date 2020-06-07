@@ -15,12 +15,15 @@ Preview: ${lobResponse.url}`
 
   const msg = {
     to: email,
-    from: 'politics@blackmad.com',
+    from: 'mail-your-rep@blackmad.com',
     subject: 'Letters Sent!',
     text: body,
   };
   console.log('sending this email', msg)
-  sgMail.send(msg).catch((err: any) => console.dir(err, {depth: 10}));
+  sgMail.send(msg).catch((err: any) => {
+    console.dir(err, {depth: 10});
+    throw(err);
+  });
 }
 
 const makeLetter = ({
@@ -150,7 +153,7 @@ export const executeOrderId = async (orderId: string) => {
   return executeOrder(orderData);
 };
 
-export const executeOrder = async (orderData: Order) => {
+export const executeOrder = async (orderData: Order): Promise<any> => {
   if (!orderData || !orderData.toAddresses || !orderData.body) {
     throw new Error("no order with id ");
   }

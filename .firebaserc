@@ -1,5 +1,14 @@
 {
   "projects": {
-    "default": "political-postcards"
+    "default": "mail-your-rep"
+  },
+  "targets": {
+    "political-postcards": {
+      "hosting": {
+        "mail-your-rep": [
+          "mail-your-rep"
+        ]
+      }
+    }
   }
 }

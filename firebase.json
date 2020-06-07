@@ -7,6 +7,7 @@
     "predeploy": "npm --prefix \"$RESOURCE_DIR\" run build"
   },
   "hosting": {
+    "target": "mail-your-rep",
     "public": "frontend/build/",
     "ignore": [
       "firebase.json",
