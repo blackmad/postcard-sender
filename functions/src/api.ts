@@ -1,4 +1,4 @@
-import { Config, stripe, GoogleApiKey } from "./apis";
+import { prodStripe, testStripe, GoogleApiKey, ProdConfig, TestConfig } from "./apis";
 
 import * as express from "express";
 import * as asyncHandler from "express-async-handler";
@@ -37,6 +37,8 @@ app.post(
   asyncHandler(async (req, res) => {
     const host = req.get("Origin") || req.get("origin");
 
+    const isTest = host?.replace('http://', '').replace('https://', '').replace('/', '') !== 'mail-your-rep.web.app';
+
     const validation = startPaymentRequestSchema.validate(req.body);
     if (validation.error) {
       res.status(500).json({ errors: validation.error.details });
@@ -49,11 +51,14 @@ app.post(
     const orderRef = orderCollection.doc();
     const orderId = orderRef.id;
 
+    const stripe = isTest ? testStripe : prodStripe;
+    const productId = isTest ? TestConfig.stripe.product_id : ProdConfig.stripe.product_id;
+
     const stripeSession = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
         {
-          price: Config.stripe.product_id,
+          price: productId,
           quantity: (toAddresses || []).length,
         },
       ],
@@ -64,9 +69,7 @@ app.post(
       cancel_url: `${host}/cancel`,
     });
 
-    console.dir({ sesionId: stripeSession.id, orderId }, { depth: 10 });
-
-    orderRef.set({ ...body, orderId }).then(() => {
+    orderRef.set({ ...body, orderId, isTest }).then(() => {
       res.json({ sessionId: stripeSession.id });
     });
   })

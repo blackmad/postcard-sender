@@ -12,7 +12,7 @@ import {
 // import Nav from "react-bootstrap/Nav";
 
 import { QueryParamProvider } from "use-query-params";
-import { useQueryParam, NumberParam, StringParam } from "use-query-params";
+import { useQueryParam, StringParam } from "use-query-params";
 
 import Create from "./Create";
 import PostcardForm from "./PostcardForm";
@@ -40,7 +40,7 @@ function Card() {
 
 function AdhocCard() {
   console.log(window.location.search);
-  const [body, setBody] = useQueryParam("body", StringParam);
+  const [body, _setBody] = useQueryParam("body", StringParam);
   console.log({ body });
   return <PostcardForm templateBody={body || ""} />;
 }

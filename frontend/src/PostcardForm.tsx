@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 
 import * as _ from "lodash";
 
+import Alert from "react-bootstrap/Alert";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Form from "react-bootstrap/Form";
@@ -133,11 +134,11 @@ function Inputs({
         };
         return (
           <Form.Group className="row" key={input}>
-            <Form.Label>{input}</Form.Label>
+            <Form.Label>{_.startCase(_.toLower(input))}</Form.Label>
             <Form.Control type="text" onChange={onChange} />
           </Form.Group>
         );
-      })}{" "}
+      })}
     </>
   );
 }
@@ -253,14 +254,16 @@ function PostcardForm({ mailId, templateBody }: Props) {
   console.log(newBodyText);
 
   if (!template) {
-    return <Container>Loading ...</Container>;
+    return <Container className="pt-5">Loading ...</Container>;
   }
 
   const emailKey = _.find(variables, (v) => v.toLocaleLowerCase().includes("email"));
   const email = variableMap[emailKey!];
 
   return (
-    <Container>
+    <Container className="pt-5">
+
+  { window.location.host !== 'mail-your-rep-dev.web.app' && <Alert variant='danger'>TEST MODE</Alert> }
       <MyAddressInput updateAddress={updateAddress} />
 
       <Inputs inputs={variables} updateField={updateField} />

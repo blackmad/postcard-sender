@@ -16,7 +16,7 @@ export default function MyAddressInput({ updateAddress }: { updateAddress: (a: A
   return (
     <>
       <Form.Group className="row">
-        <Form.Label>Your Address</Form.Label>
+        <Form.Label>Your Name</Form.Label>
         <Form.Control
           placeholder="Your Name"
           type="text"
@@ -30,7 +30,7 @@ export default function MyAddressInput({ updateAddress }: { updateAddress: (a: A
       </Form.Group>
 
       <Form.Group className="row">
-        {/* <Form.Label>Your Address</Form.Label> */}
+        <Form.Label>Your Address</Form.Label>
         <Form.Control
           placeholder="123 Main St"
           type="text"

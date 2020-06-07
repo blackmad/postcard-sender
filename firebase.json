@@ -6,7 +6,7 @@
   "functions": {
     "predeploy": "npm --prefix \"$RESOURCE_DIR\" run build"
   },
-  "hosting": {
+  "hosting": [{
     "target": "mail-your-rep",
     "public": "frontend/build/",
     "ignore": [
@@ -20,7 +20,21 @@
         "destination": "/index.html"
       }
     ]
-  },
+  }, {
+    "target": "mail-your-rep-dev",
+    "public": "frontend/build/",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }],
   "emulators": {
     "functions": {
       "port": 5001

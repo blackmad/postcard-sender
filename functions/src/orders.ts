@@ -1,41 +1,44 @@
 import { orderCollection } from "./database";
 import { Order, Address } from "./types";
 
-import { Lob, sgMail } from "./apis";
+import { TestLob, ProdLob, sgMail } from "./apis";
 
 export const notifyUser = (email: string, lobResponses: any) => {
-
-  const responseSummaries = lobResponses.map((lobResponse: any) => {
-    return `Sent to: ${lobResponse.to.name}
+  const responseSummaries = lobResponses
+    .map((lobResponse: any) => {
+      return `Sent to: ${lobResponse.to.name}
 Expected Delivery: ${lobResponse.expected_delivery_date}
-Preview: ${lobResponse.url}`
-  }).join('\n\n');
+Preview: ${lobResponse.url}`;
+    })
+    .join("\n\n");
 
-  const body = `You sent some letters!\n\n${responseSummaries}`
+  const body = `You sent some letters!\n\n${responseSummaries}`;
 
   const msg = {
     to: email,
-    from: 'mail-your-rep@blackmad.com',
-    subject: 'Letters Sent!',
+    from: "mail-your-rep@blackmad.com",
+    subject: "Letters Sent!",
     text: body,
   };
-  console.log('sending this email', msg)
+  console.log("sending this email", msg);
   sgMail.send(msg).catch((err: any) => {
-    console.dir(err, {depth: 10});
-    throw(err);
+    console.dir(err, { depth: 10 });
+    throw err;
   });
-}
+};
 
 const makeLetter = ({
   toAddress,
   fromAddress,
   body,
   email,
+  isTest,
 }: {
   toAddress: Address;
   fromAddress: Address;
   body: string;
   email: string;
+  isTest: boolean;
 }): string => {
   const formattedBody = body.replace(/\n/g, "<br/><br/>");
 
@@ -107,19 +110,21 @@ const makeLetter = ({
       <!-- Your logo here! -->
 
       <div class='wrapper'>
+        ${isTest ? "<h1>TEST TEST TEST TEST TEST</h1>" : ""}
         <p>${formattedDate}</p>
 
         <p>Dear ${toAddress.name},</p>
 
         ${formattedBody.replace(/\n\n/g, "<br/>").replace(/\n/g, "<br/>")}
 
-        <p>Thank you,</p>
-        <p class="signature">${fromAddress.name}</p>
+        <p>Thank you,<br/>
+        <span class="signature">${fromAddress.name}</span></p>
 
         <p>
           ${fromAddress.name}<br/>
-          ${fromAddress.address_line1}<br/>
-          ${fromAddress.address_city}, ${fromAddress.address_state} ${fromAddress.address_zip}<br/>
+          <!--${fromAddress.address_line1}, ${fromAddress.address_city}, ${
+    fromAddress.address_state
+  } ${fromAddress.address_zip}<br/>-->
           ${email}
       </div>
     </div>
@@ -130,7 +135,7 @@ const makeLetter = ({
 };
 
 export const markOrderPaid = async (orderId: string) => {
-  console.log('marking order paid', orderId);
+  console.log("marking order paid", orderId);
   const docs = await orderCollection.where("orderId", "==", orderId).get();
   if (docs.empty) {
     throw new Error("no order with id " + orderId);
@@ -158,6 +163,8 @@ export const executeOrder = async (orderData: Order): Promise<any> => {
     throw new Error("no order with id ");
   }
 
+  const Lob = orderData.isTest ? TestLob : ProdLob;
+
   const lobPromises = orderData.toAddresses.map((toAddress: Address) => {
     return new Promise((resolve, reject) => {
       Lob.letters.create(
@@ -165,7 +172,13 @@ export const executeOrder = async (orderData: Order): Promise<any> => {
           description: "Demo Letter",
           to: toAddress,
           from: orderData.fromAddress,
-          file: makeLetter({ email: orderData.email, toAddress, fromAddress: orderData.fromAddress, body: orderData.body }),
+          file: makeLetter({
+            email: orderData.email,
+            toAddress,
+            fromAddress: orderData.fromAddress,
+            body: orderData.body,
+            isTest: orderData.isTest,
+          }),
           color: false,
         },
         (err: any, body: any) => {

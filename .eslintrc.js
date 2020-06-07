@@ -29,7 +29,7 @@ module.exports = {
     "no-unused-vars": 0,
     '@typescript-eslint/explicit-module-boundary-types': 0,
     '@typescript-eslint/no-explicit-any': 0,
-    '@typescript-eslint/no-unused-vars': ["error", { "argsIgnorePattern": "^_" }],
+    '@typescript-eslint/no-unused-vars': ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
   },
   "settings": {
     "import/resolver": {

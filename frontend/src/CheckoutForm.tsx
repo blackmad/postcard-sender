@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Address, LETTER_COST, GoogleCivicRepsResponse } from "./types";
+import React, { useState } from "react";
+import { Address, LETTER_COST } from "./types";
 
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
@@ -82,14 +82,14 @@ const CheckoutForm = ({
   } else if (!formValid) {
     buttonText = "Fill in all fields";
   } else {
-    buttonText = "Mail ${checkedAddresses.length} letters for $${totalAmount.toFixed(2)}"
+    buttonText = `Mail ${checkedAddresses.length} letters for $${totalAmount.toFixed(2)}`;
   }
 
 
   return (
     <>
     {error && <Alert variant='danger'>{error}</Alert>}
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="text-center">
         <Button variant="primary" type="submit" disabled={isDisabled}>
           {buttonText}
         </Button>

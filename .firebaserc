@@ -7,6 +7,9 @@
       "hosting": {
         "mail-your-rep": [
           "mail-your-rep"
+        ],
+        "mail-your-rep-dev": [
+          "mail-your-rep-dev"
         ]
       }
     }
