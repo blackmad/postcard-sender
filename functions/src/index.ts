@@ -28,7 +28,5 @@ exports.executeOrder = functions.firestore
         return;
       }
 
-      console.log({previousValue, newValue})
-
       executeOrder(newValue as Order);
     });

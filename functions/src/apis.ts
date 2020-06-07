@@ -1,7 +1,7 @@
 import functions = require('firebase-functions');
 
 export let Config = functions.config().test;
-if (functions.config().mode === 'prod') {
+if (functions.config().global.mode === 'prod') {
   Config = functions.config().prod;
 }
 
@@ -18,3 +18,5 @@ export const mg = mailgun({apiKey: Config.mailgun.api_key, domain: DOMAIN});
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 export const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(Config.sendgrid.api_key);
+
+export const GoogleApiKey = Config.google.api_key;

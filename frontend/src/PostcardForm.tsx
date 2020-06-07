@@ -8,7 +8,7 @@ import Form from "react-bootstrap/Form";
 
 import "./App.css";
 
-import { Template, Address } from "./types";
+import { Template, Address, GoogleCivicRepsResponse } from "./types";
 import CheckoutForm from "./CheckoutForm";
 import MyAddressInput from "./MyAddressInput";
 import { templatesCollection } from "./firebase";
@@ -24,31 +24,92 @@ function parseVars(template: string) {
 
 const addressToSingleLine = (address: Address): string => {
   const cityStateLine = [address.address_city, address.address_state, address.address_zip]
-  .filter((a) => Boolean(a))
-  .join(" ");
-const formattedAddress = [address.address_line1, address.address_line2, cityStateLine]
-  .filter((l) => Boolean(l))
-  .join(", ");
-  return formattedAddress
-}
+    .filter((a) => Boolean(a))
+    .join(" ");
+  const formattedAddress = [address.address_line1, address.address_line2, cityStateLine]
+    .filter((l) => Boolean(l) && l !== "" && l !== " ")
+    .join(", ");
+  return formattedAddress;
+};
+
+type OfficialAddress = {
+  officeName: string;
+  address: Address;
+};
+
+const mungeReps = (reps: GoogleCivicRepsResponse): OfficialAddress[] => {
+  if (!reps.offices) {
+    return [];
+  }
+
+  const offices = reps.offices.filter((office) => {
+    const isPresidenty =
+      office.levels.includes("country") &&
+      (office.roles.includes("headOfState") ||
+        office.roles.includes("headOfGovernment") ||
+        office.roles.includes("deputyHeadOfGovernment"));
+    return !isPresidenty;
+  });
+
+  return _.flatMap(offices, (office) => {
+    return office.officialIndices
+      .map((officialIndex) => {
+        console.log("looking for", officialIndex, "in", office);
+        const official = reps.officials[officialIndex];
+        console.log({ official });
+        if (!official.address || official.address.length === 0) {
+          return undefined;
+        }
+        const address = official.address[0];
+        return {
+          address: {
+            name: official.name,
+            address_line1: address.line1,
+            address_line2: [address.line2, address.line3].join(" "),
+            address_city: address.city,
+            address_state: address.state,
+            address_zip: address.zip,
+            address_country: "US",
+          },
+          officeName: office.name,
+        };
+      })
+      .filter((a) => a !== undefined) as OfficialAddress[];
+  });
+};
 
 function Addresses({
-  addresses,
+  // addresses,
   onAddressSelected,
+  reps,
 }: {
-  addresses: Address[];
+  // addresses: Address[];
+  reps: GoogleCivicRepsResponse;
   onAddressSelected: (b: boolean, c: Address) => void;
 }) {
+  const officialAddresses = mungeReps(reps);
+  console.log(officialAddresses);
+
   return (
     <>
-      {addresses?.map((address) => {
+      {officialAddresses?.map((officialAddress) => {
+        const address = officialAddress.address;
         const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
           onAddressSelected(event.target.checked, address);
         };
         return (
           <Row key={address.name}>
             <Form.Group controlId={address.name}>
-              <Form.Check type="checkbox" label={`${address.name}, ${addressToSingleLine(address)}`} onChange={onChange} />
+              <Form.Check
+                type="checkbox"
+                label={
+                  <>
+                    <b>{address.name}</b> ({officialAddress.officeName}),{" "}
+                    {addressToSingleLine(address)}
+                  </>
+                }
+                onChange={onChange}
+              />
             </Form.Group>
           </Row>
         );
@@ -82,34 +143,76 @@ function Inputs({
 }
 
 interface Props {
-  mailId: string;
+  mailId?: string;
+  templateBody?: string;
 }
 
-function PostcardForm({ mailId }: Props) {
+function PostcardForm({ mailId, templateBody }: Props) {
   const [template, setTemplate] = useState({} as Template);
   const [myAddress, setMyAddress] = useState({} as Address);
   const [variables, setVariables] = useState([] as string[]);
   const [variableMap, setVariableMap] = useState({} as Record<string, string>);
   const [checkedAddresses, setCheckedAddresses] = useState([] as Address[]);
+  const [reps, setReps] = useState({} as GoogleCivicRepsResponse);
+
+  const setTemplateAndVars = (template: Template) => {
+    setTemplate(template);
+
+    let variableKeys = parseVars(template.template) || [];
+    const emailKey = _.find(variableKeys, (v) => v.toLocaleLowerCase().includes("email"));
+
+    if (!emailKey) {
+      variableKeys = [...variableKeys, "YOUR EMAIL"];
+    }
+
+    setVariables(variableKeys);
+  };
 
   useEffect(() => {
-    templatesCollection
-      .doc(mailId)
-      .get()
-      .then((value) => {
-        const template = (value.data() as unknown) as Template;
-        setTemplate(template);
-
-        let variableKeys = parseVars(template.template) || [];
-        const emailKey = _.find(variableKeys, (v) => v.toLocaleLowerCase().includes("email"));
-
-        if (!emailKey) {
-          variableKeys = [...variableKeys, 'YOUR EMAIL'];
-        }
-
-        setVariables(variableKeys);
-      });
+    if (mailId) {
+      templatesCollection
+        .doc(mailId)
+        .get()
+        .then((value) => {
+          const template = (value.data() as unknown) as Template;
+          setTemplateAndVars(template);
+        });
+    }
   }, [mailId]);
+
+  useEffect(() => {
+    if (templateBody) {
+      setTemplateAndVars({
+        template: templateBody,
+        addresses: [],
+        name: "",
+        id: "",
+      } as Template);
+    }
+  }, [templateBody]);
+
+  useEffect(() => {
+    if (
+      !myAddress.address_city ||
+      !myAddress.address_line1 ||
+      !myAddress.address_state ||
+      !myAddress.address_zip
+    ) {
+      return;
+    }
+
+    console.log("searching reps for", addressToSingleLine(myAddress));
+
+    const params = new URLSearchParams({
+      address: addressToSingleLine(myAddress),
+    }).toString();
+
+    fetch("https://us-central1-political-postcards.cloudfunctions.net/api/findReps?" + params).then(
+      (res) => {
+        res.json().then((data) => setReps(data as GoogleCivicRepsResponse));
+      }
+    );
+  }, [myAddress]);
 
   const updateField = (key: string, value: string) => {
     console.log({ key, value });
@@ -126,7 +229,6 @@ function PostcardForm({ mailId }: Props) {
       setCheckedAddresses(checkedAddresses.filter((a) => a !== address));
     }
   };
-
 
   const updateAddress = (address: Address) => {
     console.log("updating", address);
@@ -176,7 +278,7 @@ function PostcardForm({ mailId }: Props) {
         </div>
       </Row>
 
-      <Addresses addresses={template.addresses} onAddressSelected={onAddressSelected} />
+      <Addresses reps={reps} onAddressSelected={onAddressSelected} />
 
       <CheckoutForm
         checkedAddresses={checkedAddresses}

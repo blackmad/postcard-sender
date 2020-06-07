@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Address, LETTER_COST } from "./types";
+import { Address, LETTER_COST, GoogleCivicRepsResponse } from "./types";
 
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
@@ -25,10 +25,13 @@ const CheckoutForm = ({
   variables: Record<string, string>,
 }) => {
   const [error, setError] = useState('');
+  const [inSubmit, setInSubmit] = useState(false);
   
   const totalAmount = checkedAddresses.length * LETTER_COST;
 
   const handleSubmit = async (event: any) => {
+    setInSubmit(true);
+
     // We don't want to let default form submission happen here,
     // which would refresh the page.
     event.preventDefault();
@@ -67,7 +70,7 @@ const CheckoutForm = ({
     console.error(error);
   };
 
-  const isDisabled = checkedAddresses.length === 0 || !formValid;
+  const isDisabled = checkedAddresses.length === 0 || !formValid || inSubmit;
 
   return (
     <>

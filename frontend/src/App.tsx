@@ -3,14 +3,16 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link,
+  // Link,
   useRouteMatch,
   useParams,
 } from "react-router-dom";
-import { LinkContainer } from "react-router-bootstrap";
+// import { LinkContainer } from "react-router-bootstrap";
+// import Navbar from "react-bootstrap/Navbar";
+// import Nav from "react-bootstrap/Nav";
 
-import Navbar from "react-bootstrap/Navbar";
-import Nav from "react-bootstrap/Nav";
+import { QueryParamProvider } from "use-query-params";
+import { useQueryParam, NumberParam, StringParam } from "use-query-params";
 
 import Create from "./Create";
 import PostcardForm from "./PostcardForm";
@@ -36,10 +38,18 @@ function Card() {
   return <PostcardForm mailId={cardId} />;
 }
 
+function AdhocCard() {
+  console.log(window.location.search);
+  const [body, setBody] = useQueryParam("body", StringParam);
+  console.log({ body });
+  return <PostcardForm templateBody={body || ""} />;
+}
+
 function App() {
   return (
     <Router>
-      <Navbar bg="light" expand="lg">
+      <QueryParamProvider ReactRouterRoute={Route}>
+        {/* <Navbar bg="light" expand="lg">
         <Navbar.Brand href="#home">Post-to-Pol</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
@@ -55,25 +65,29 @@ function App() {
             </LinkContainer>
           </Nav>
         </Navbar.Collapse>
-      </Navbar>
+      </Navbar> */}
 
-      <Switch>
-        <Route path="/about">
-          <About />
-        </Route>
-        <Route path="/create">
-          <Create />
-        </Route>
-        <Route path="/card">
-          <Cards />
-        </Route>
-        <Route path="/success">
-          <Success />
-        </Route>
-        <Route path="/">
-          <Home />
-        </Route>
-      </Switch>
+        <Switch>
+          <Route path="/about">
+            <About />
+          </Route>
+          <Route path="/create">
+            <Create />
+          </Route>
+          <Route path="/card">
+            <Cards />
+          </Route>
+          <Route path="/send">
+            <AdhocCard />
+          </Route>
+          <Route path="/success">
+            <Success />
+          </Route>
+          <Route path="/">
+            <Home />
+          </Route>
+        </Switch>
+      </QueryParamProvider>
     </Router>
   );
 }

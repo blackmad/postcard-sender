@@ -1,16 +1,15 @@
-import { Config, stripe } from "./apis";
+import { Config, stripe, GoogleApiKey } from "./apis";
 
 import * as express from "express";
 import * as asyncHandler from "express-async-handler";
+import axios from "axios";
 
-import cors = require('cors');
+import cors = require("cors");
 
 import bodyParser = require("body-parser");
 const app = express();
 
 app.use(cors({ origin: true }));
-
-
 
 import { startPaymentRequestSchema, StartPaymentRequestType } from "./types";
 import { orderCollection } from "./database";
@@ -18,10 +17,25 @@ import { markOrderPaid } from "./orders";
 
 app.use(bodyParser.json());
 
+app.get(
+  "/findReps",
+  asyncHandler(async (req, res) => {
+    // Optionally the request above could also be done as
+    const response = await axios.get("https://www.googleapis.com/civicinfo/v2/representatives", {
+      params: {
+        address: req.query.address,
+        key: GoogleApiKey,
+      },
+    });
+  
+    res.json(response.data);
+  })
+);
+
 app.post(
   "/startPayment",
   asyncHandler(async (req, res) => {
-    const host = req.get('Origin') || req.get('origin');
+    const host = req.get("Origin") || req.get("origin");
 
     const validation = startPaymentRequestSchema.validate(req.body);
     if (validation.error) {

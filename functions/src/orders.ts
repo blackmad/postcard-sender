@@ -15,11 +15,12 @@ Preview: ${lobResponse.url}`
 
   const msg = {
     to: email,
-    from: 'test@example.com',
+    from: 'politics@blackmad.com',
     subject: 'Letters Sent!',
     text: body,
   };
-  sgMail.send(msg);
+  console.log('sending this email', msg)
+  sgMail.send(msg).catch((err: any) => console.dir(err, {depth: 10}));
 }
 
 const makeLetter = ({
@@ -107,12 +108,11 @@ const makeLetter = ({
 
         <p>Dear ${toAddress.name},</p>
 
-        ${formattedBody.replace(/\n/g, "<br/>")}
+        ${formattedBody.replace(/\n\n/g, "<br/>").replace(/\n/g, "<br/>")}
 
         <p>Thank you,</p>
         <p class="signature">${fromAddress.name}</p>
 
-        <br/>
         <p>
           ${fromAddress.name}<br/>
           ${fromAddress.address_line1}<br/>

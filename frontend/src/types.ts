@@ -1,5 +1,5 @@
-export const POSTCARD_COST = 0.70;
-export const LETTER_COST = 0.70;
+export const POSTCARD_COST = 0.7;
+export const LETTER_COST = 0.7;
 
 export interface Address {
   name: string;
@@ -13,8 +13,55 @@ export interface Address {
 
 export interface Template {
   template: string;
-  fields: string[];
   addresses: Address[];
   name: string;
   id: string;
+}
+
+export interface GoogleCivicRepsResponseOfficial {
+  name: string;
+  address: {
+    line1: string;
+    line2: string;
+    line3: string;
+    city: string;
+    state: string;
+    zip: string;
+  }[];
+}
+
+export type GoogleCivicRepsResponseLevel =
+  | "international"
+  | "country"
+  | "administrativeArea1"
+  | "regional"
+  | "administrativeArea2"
+  | "locality"
+  | "subLocality1"
+  | "subLocality2"
+  | "special";
+export type GoogleCivicRepsResponseRole =
+  | "headOfState"
+  | "headOfGovernment"
+  | "deputyHeadOfGovernment"
+  | "governmentOfficer"
+  | "executiveCouncil"
+  | "legislatorUpperBody"
+  | "legislatorLowerBody"
+  | "highestCourtJudge"
+  | "judge"
+  | "schoolBoard"
+  | "specialPurposeOfficer";
+
+export interface GoogleCivicRepsResponseOffice {
+  name: string;
+  divisionId: string;
+  levels: GoogleCivicRepsResponseLevel[];
+  roles: GoogleCivicRepsResponseRole[];
+  officialIndices: number[];
+}
+
+export interface GoogleCivicRepsResponse {
+  officials: GoogleCivicRepsResponseOfficial[];
+  offices: GoogleCivicRepsResponseOffice[];
 }

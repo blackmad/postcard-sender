@@ -5,3 +5,4 @@ dist
 public
 *.log
 creds
+.runtimeconfig.json
