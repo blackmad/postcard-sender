@@ -21,6 +21,7 @@ import Success from "./Success";
 import About from "./About";
 import Home from "./Home";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { GoogleCivicRepsResponseLevel, GoogleCivicRepsResponseRole } from "./types";
 
 function Cards() {
   let match = useRouteMatch();
@@ -41,8 +42,20 @@ function Card() {
 function AdhocCard() {
   console.log(window.location.search);
   const [body, _setBody] = useQueryParam("body", StringParam);
-  console.log({ body });
-  return <PostcardForm templateBody={body || ""} />;
+  const [rawRestricts, _setRestricts] = useQueryParam("restricts", StringParam);
+
+  const restricts = rawRestricts?.split(',').map((r) => {
+    return {
+      level: r.split(':')[0] as GoogleCivicRepsResponseLevel,
+      role: r.split(':')[1] as GoogleCivicRepsResponseRole,
+    }
+  })
+  return <PostcardForm adhocTemplate={{
+    template: body || '',
+    id: 'adoc',
+    name: 'adhoc',
+    officialRestricts: restricts
+  }} />;
 }
 
 function App() {

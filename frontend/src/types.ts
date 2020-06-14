@@ -1,5 +1,5 @@
 export const POSTCARD_COST = 0.7;
-export const LETTER_COST = 0.7;
+export const LETTER_COST = 0.9;
 
 export interface Address {
   name: string;
@@ -11,21 +11,29 @@ export interface Address {
   address_country: string;
 }
 
+export interface OfficialRestrict {
+  level: GoogleCivicRepsResponseLevel;
+  role: GoogleCivicRepsResponseRole;
+}
+
 export interface Template {
   template: string;
-  addresses: Address[];
+  addresses?: Address[];
   name: string;
   id: string;
+  notes?: string;
+  officialRestricts?: OfficialRestrict[];
+  cityCouncilOnly?: boolean;
 }
 
 export interface BasicAddress {
-    line1: string;
-    line2: string;
-    line3: string;
-    city: string;
-    state: string;
-    zip: string;
-  };
+  line1: string;
+  line2: string;
+  line3: string;
+  city: string;
+  state: string;
+  zip: string;
+}
 
 export interface GoogleCivicRepsResponseOfficial {
   name: string;
@@ -71,21 +79,21 @@ export interface GoogleCivicRepsResponse {
 
 export interface BlackmadCityCountilResponseOfficial {
   addresses: {
-    address: BasicAddress,
-    fax: string,
-    name: string,
-    phone: string
-  }[],
-  district: string,
-  email: string,
-  name: string,
+    address: BasicAddress;
+    fax: string;
+    name: string;
+    phone: string;
+  }[];
+  district: string;
+  email: string;
+  name: string;
   office: {
-    level: GoogleCivicRepsResponseLevel,
-    name: string,
-    role: GoogleCivicRepsResponseRole
-  },
-  photoUrl: string,
-  urls: string[],
+    level: GoogleCivicRepsResponseLevel;
+    name: string;
+    role: GoogleCivicRepsResponseRole;
+  };
+  photoUrl: string;
+  urls: string[];
 }
 
 export interface BlackmadCityCountilResponse {

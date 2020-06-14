@@ -5,9 +5,15 @@ import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 
 import { loadStripe } from "@stripe/stripe-js";
+import { isTestMode } from "./utils";
 // Make sure to call `loadStripe` outside of a component’s render to avoid
 // recreating the `Stripe` object on every render.
-const stripePromise = loadStripe("pk_test_51GqpRpGLGlm5kFVxzwruVzMZ2Bc07pqosMzyiZd6ixInJHEq6MgFE9v1kRVJZUUhuOT3X2XdfHj31oknZEmKK6KT004CUm09hp");
+
+const stripePk = isTestMode()
+  ? "pk_test_51GqpRpGLGlm5kFVxzwruVzMZ2Bc07pqosMzyiZd6ixInJHEq6MgFE9v1kRVJZUUhuOT3X2XdfHj31oknZEmKK6KT004CUm09hp"
+  : "pk_live_51v9NZmT3TbTBBYultfXFkXO00Ohhh09jN";
+
+const stripePromise = loadStripe(stripePk);
 
 const CheckoutForm = ({
   checkedAddresses,
@@ -17,16 +23,16 @@ const CheckoutForm = ({
   email,
   variables,
 }: {
-  checkedAddresses: Address[],
-  myAddress: Address,
+  checkedAddresses: Address[];
+  myAddress: Address;
   body: string;
-  formValid: boolean,
-  email: string,
-  variables: Record<string, string>,
+  formValid: boolean;
+  email: string;
+  variables: Record<string, string>;
 }) => {
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [inSubmit, setInSubmit] = useState(false);
-  
+
   const totalAmount = checkedAddresses.length * LETTER_COST;
 
   const handleSubmit = async (event: any) => {
@@ -36,28 +42,30 @@ const CheckoutForm = ({
     // which would refresh the page.
     event.preventDefault();
 
-    var response = await fetch('https://us-central1-political-postcards.cloudfunctions.net/api/startPayment', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        fromAddress: myAddress,
-        toAddresses: checkedAddresses,
-        body,
-        variables: variables,
-        email,
-      })
-    })
-      .then(function (response) {
-        return response.json();
-      })
+    var response = await fetch(
+      "https://us-central1-political-postcards.cloudfunctions.net/api/startPayment",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fromAddress: myAddress,
+          toAddresses: checkedAddresses,
+          body,
+          variables: variables,
+          email,
+        }),
+      }
+    ).then(function (response) {
+      return response.json();
+    });
 
     if (response.errors) {
-      setError(response.errors.map((e: any) => e.message).join(', '));
+      setError(response.errors.map((e: any) => e.message).join(", "));
       return;
     } else {
-      setError('');
+      setError("");
     }
 
     const stripeSessionId = response.sessionId;
@@ -74,21 +82,20 @@ const CheckoutForm = ({
 
   let buttonText = "Select some addresses and fill in all fields";
   if (inSubmit) {
-    buttonText = "Submitting ..."
+    buttonText = "Submitting ...";
   } else if (checkedAddresses.length === 0 && !formValid) {
-    buttonText =  "Select some addresses and fill in all fields";
+    buttonText = "Select some addresses and fill in all fields";
   } else if (checkedAddresses.length === 0) {
-    buttonText =   "Select some addresses";
+    buttonText = "Select some addresses";
   } else if (!formValid) {
     buttonText = "Fill in all fields";
   } else {
     buttonText = `Mail ${checkedAddresses.length} letters for $${totalAmount.toFixed(2)}`;
   }
 
-
   return (
     <>
-    {error && <Alert variant='danger'>{error}</Alert>}
+      {error && <Alert variant="danger">{error}</Alert>}
       <form onSubmit={handleSubmit} className="text-center">
         <Button variant="primary" type="submit" disabled={isDisabled}>
           {buttonText}

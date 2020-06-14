@@ -9,3 +9,7 @@ export const addressToSingleLine = (address: Address): string => {
     .join(", ");
   return formattedAddress;
 };
+
+export const isTestMode = (): boolean => {
+  return window.location.host !== "mail-your-rep.web.app" 
+}
