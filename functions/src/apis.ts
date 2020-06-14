@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import functions = require('firebase-functions');
 
-const TestConfig = functions.config().test;
-const ProdConfig = functions.config().prod;
+export const TestConfig = functions.config().test;
+export const ProdConfig = functions.config().prod;
 
 export const ProdLob = require("lob")(ProdConfig.lob.api_key);
 export const TestLob = require("lob")(TestConfig.lob.api_key);

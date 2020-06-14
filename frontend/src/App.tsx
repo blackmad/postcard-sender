@@ -7,9 +7,9 @@ import {
   useRouteMatch,
   useParams,
 } from "react-router-dom";
-// import { LinkContainer } from "react-router-bootstrap";
-// import Navbar from "react-bootstrap/Navbar";
-// import Nav from "react-bootstrap/Nav";
+import { LinkContainer } from "react-router-bootstrap";
+import Navbar from "react-bootstrap/Navbar";
+import Nav from "react-bootstrap/Nav";
 
 import { QueryParamProvider } from "use-query-params";
 import { useQueryParam, StringParam } from "use-query-params";
@@ -49,8 +49,8 @@ function App() {
   return (
     <Router>
       <QueryParamProvider ReactRouterRoute={Route}>
-        {/* <Navbar bg="light" expand="lg">
-        <Navbar.Brand href="#home">Post-to-Pol</Navbar.Brand>
+        <Navbar bg="light" expand="lg">
+        <Navbar.Brand href="#home">Mail Your Rep</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="mr-auto">
@@ -65,7 +65,7 @@ function App() {
             </LinkContainer>
           </Nav>
         </Navbar.Collapse>
-      </Navbar> */}
+      </Navbar>
 
         <Switch>
           <Route path="/about">

@@ -3,6 +3,8 @@ import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 import firebase from 'firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
+import Container from "react-bootstrap/Container";
+import AddEditTemplateForm from './AddEditTemplateForm';
 
 const uiConfig = {
     signInOptions: [
@@ -36,12 +38,7 @@ function CreateForm() {
         );
     }
     if (user) {
-      return (
-        <div>
-          <p>Current User: {user.email}</p>
-          <button onClick={logout}>Log out</button>
-        </div>
-      );
+      return (<AddEditTemplateForm/>);
     }
     return (
         <div>
@@ -53,10 +50,10 @@ function CreateForm() {
 export default function Create() {
 
     return (
-        <div>
+        <Container>
             <h4>Create a new campaign</h4>
             (This is not implemented yet! Would you like to help??? Get in touch - david@whizziwig.com)
             <CreateForm />
-        </div>
+        </Container>
     )
 }

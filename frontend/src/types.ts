@@ -18,16 +18,18 @@ export interface Template {
   id: string;
 }
 
-export interface GoogleCivicRepsResponseOfficial {
-  name: string;
-  address: {
+export interface BasicAddress {
     line1: string;
     line2: string;
     line3: string;
     city: string;
     state: string;
     zip: string;
-  }[];
+  };
+
+export interface GoogleCivicRepsResponseOfficial {
+  name: string;
+  address: BasicAddress[];
 }
 
 export type GoogleCivicRepsResponseLevel =
@@ -40,6 +42,7 @@ export type GoogleCivicRepsResponseLevel =
   | "subLocality1"
   | "subLocality2"
   | "special";
+
 export type GoogleCivicRepsResponseRole =
   | "headOfState"
   | "headOfGovernment"
@@ -64,4 +67,27 @@ export interface GoogleCivicRepsResponseOffice {
 export interface GoogleCivicRepsResponse {
   officials: GoogleCivicRepsResponseOfficial[];
   offices: GoogleCivicRepsResponseOffice[];
+}
+
+export interface BlackmadCityCountilResponseOfficial {
+  addresses: {
+    address: BasicAddress,
+    fax: string,
+    name: string,
+    phone: string
+  }[],
+  district: string,
+  email: string,
+  name: string,
+  office: {
+    level: GoogleCivicRepsResponseLevel,
+    name: string,
+    role: GoogleCivicRepsResponseRole
+  },
+  photoUrl: string,
+  urls: string[],
+}
+
+export interface BlackmadCityCountilResponse {
+  data: BlackmadCityCountilResponseOfficial[];
 }

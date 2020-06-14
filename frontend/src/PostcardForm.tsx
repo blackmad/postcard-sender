@@ -34,11 +34,12 @@ const addressToSingleLine = (address: Address): string => {
 };
 
 type OfficialAddress = {
-  officeName: string;
+  officeName?: string;
   address: Address;
 };
 
 const mungeReps = (reps: GoogleCivicRepsResponse): OfficialAddress[] => {
+  console.log({reps});
   if (!reps.offices) {
     return [];
   }
@@ -80,16 +81,20 @@ const mungeReps = (reps: GoogleCivicRepsResponse): OfficialAddress[] => {
 };
 
 function Addresses({
-  // addresses,
+  addresses,
   onAddressSelected,
   reps,
 }: {
-  // addresses: Address[];
+  addresses: Address[];
   reps: GoogleCivicRepsResponse;
   onAddressSelected: (b: boolean, c: Address) => void;
 }) {
-  const officialAddresses = mungeReps(reps);
-  console.log(officialAddresses);
+  console.log({addresses, reps});
+  const officialAddresses: OfficialAddress[] = (addresses || []).length > 0
+    ? addresses.map((address) => {
+        return { address };
+      })
+    : mungeReps(reps);
 
   return (
     <>
@@ -105,7 +110,7 @@ function Addresses({
                 type="checkbox"
                 label={
                   <>
-                    <b>{address.name}</b> ({officialAddress.officeName}),{" "}
+                    <b>{address.name}</b>{officialAddress.officeName && ` (${officialAddress.officeName})`},{" "}
                     {addressToSingleLine(address)}
                   </>
                 }
@@ -193,6 +198,7 @@ function PostcardForm({ mailId, templateBody }: Props) {
   }, [templateBody]);
 
   useEffect(() => {
+    console.log({myAddress})
     if (
       !myAddress.address_city ||
       !myAddress.address_line1 ||
@@ -202,28 +208,34 @@ function PostcardForm({ mailId, templateBody }: Props) {
       return;
     }
 
-    console.log("searching reps for", addressToSingleLine(myAddress));
+    console.log(template.addresses)
+    if (!template.addresses || template.addresses.length === 0) {
+      const params = new URLSearchParams({
+        address: addressToSingleLine(myAddress),
+      }).toString();
 
-    const params = new URLSearchParams({
-      address: addressToSingleLine(myAddress),
-    }).toString();
+      console.log('searching google');
 
-    fetch("https://us-central1-political-postcards.cloudfunctions.net/api/findReps?" + params).then(
-      (res) => {
-        res.json().then((data) => setReps(data as GoogleCivicRepsResponse));
-      }
-    );
-  }, [myAddress]);
+      fetch(
+        "https://us-central1-political-postcards.cloudfunctions.net/api/findReps?" + params
+      ).then((res) => {
+        res.json().then((data) => {
+          console.log('setting reps');
+          setReps(data as GoogleCivicRepsResponse);
+        });
+      });
+    }
+  }, [myAddress, template]);
 
   const updateField = (key: string, value: string) => {
-    console.log({ key, value });
+    // console.log({ key, value });
     const newMap = { ...variableMap };
     newMap[key] = value;
     setVariableMap(newMap);
   };
 
   const onAddressSelected = (isChecked: boolean, address: Address) => {
-    console.log({ isChecked, address });
+    // console.log({ isChecked, address });
     if (isChecked) {
       setCheckedAddresses(_.uniq([...checkedAddresses, address]));
     } else {
@@ -243,7 +255,7 @@ function PostcardForm({ mailId, templateBody }: Props) {
 
   let newBodyText = template.template;
 
-  console.log(variableMap);
+  // console.log(variableMap);
 
   _.forEach(variableMap, (value, key) => {
     newBodyText = newBodyText.replace(new RegExp(`\\[${key}\\]`, "g"), value);
@@ -251,7 +263,7 @@ function PostcardForm({ mailId, templateBody }: Props) {
 
   const hasAllKeys = _.difference([...variables, ...SpecialVars], _.keys(variableMap)).length === 0;
 
-  console.log(newBodyText);
+  // console.log(newBodyText);
 
   if (!template) {
     return <Container className="pt-5">Loading ...</Container>;
@@ -262,8 +274,9 @@ function PostcardForm({ mailId, templateBody }: Props) {
 
   return (
     <Container className="pt-5">
-
-  { window.location.host !== 'mail-your-rep-dev.web.app' && <Alert variant='danger'>TEST MODE</Alert> }
+      {window.location.host !== "mail-your-rep.web.app" && (
+        <Alert variant="danger">TEST MODE</Alert>
+      )}
       <MyAddressInput updateAddress={updateAddress} />
 
       <Inputs inputs={variables} updateField={updateField} />
@@ -281,7 +294,7 @@ function PostcardForm({ mailId, templateBody }: Props) {
         </div>
       </Row>
 
-      <Addresses reps={reps} onAddressSelected={onAddressSelected} />
+      <Addresses reps={reps} addresses={template.addresses} onAddressSelected={onAddressSelected} />
 
       <CheckoutForm
         checkedAddresses={checkedAddresses}
