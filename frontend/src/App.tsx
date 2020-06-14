@@ -50,29 +50,32 @@ function App() {
     <Router>
       <QueryParamProvider ReactRouterRoute={Route}>
         <Navbar bg="light" expand="lg">
-        <Navbar.Brand href="#home">Mail Your Rep</Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="mr-auto">
-            <LinkContainer to="/home">
-              <Nav.Link>Home</Nav.Link>
-            </LinkContainer>
-            <LinkContainer to="/create">
-              <Nav.Link>Create Campaign</Nav.Link>
-            </LinkContainer>
-            <LinkContainer to="/about">
-              <Nav.Link>About</Nav.Link>
-            </LinkContainer>
-          </Nav>
-        </Navbar.Collapse>
-      </Navbar>
+          <Navbar.Brand href="#home">Mail Your Rep</Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="mr-auto">
+              <LinkContainer to="/home">
+                <Nav.Link>Home</Nav.Link>
+              </LinkContainer>
+              <LinkContainer to="/create">
+                <Nav.Link>Create Campaign</Nav.Link>
+              </LinkContainer>
+              <LinkContainer to="/about">
+                <Nav.Link>About</Nav.Link>
+              </LinkContainer>
+            </Nav>
+          </Navbar.Collapse>
+        </Navbar>
 
         <Switch>
           <Route path="/about">
             <About />
           </Route>
           <Route path="/create">
-            <Create />
+            <Create real={false} />
+          </Route>
+          <Route path="/create2">
+            <Create real={true} />
           </Route>
           <Route path="/card">
             <Cards />

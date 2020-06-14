@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { getGeocode, getLatLng } from "use-places-autocomplete";
+
 
 import * as _ from "lodash";
 
@@ -9,7 +11,7 @@ import Form from "react-bootstrap/Form";
 
 import "./App.css";
 
-import { Template, Address, GoogleCivicRepsResponse } from "./types";
+import { Template, Address, GoogleCivicRepsResponse, BlackmadCityCountilResponse } from "./types";
 import CheckoutForm from "./CheckoutForm";
 import MyAddressInput from "./MyAddressInput";
 import { templatesCollection } from "./firebase";
@@ -37,6 +39,30 @@ type OfficialAddress = {
   officeName?: string;
   address: Address;
 };
+
+const mungeCityCouncil = (cityCouncilMembers: BlackmadCityCountilResponse): OfficialAddress[] => {
+  if (!cityCouncilMembers || !cityCouncilMembers.data || cityCouncilMembers.data.length === 0) {
+    return [];
+  }
+
+  return _.flatMap(cityCouncilMembers.data, (cityCouncilMember) => {
+    return cityCouncilMember.addresses.map(address => {
+      return {
+        address: {
+          name: cityCouncilMember.name,
+          address_line1: address.address.line1,
+          address_line2: [address.address.line2, address.address.line3].filter(a => Boolean(a)).join(" "),
+          address_city: address.address.city,
+          address_state: address.address.state,
+          address_zip: address.address.zip,
+          address_country: "US",
+        },
+        officeName: cityCouncilMember.office.name + " - " + address.name
+      };
+    })
+  })
+}
+
 
 const mungeReps = (reps: GoogleCivicRepsResponse): OfficialAddress[] => {
   console.log({reps});
@@ -84,17 +110,20 @@ function Addresses({
   addresses,
   onAddressSelected,
   reps,
+  cityCouncilMembers,
 }: {
   addresses: Address[];
   reps: GoogleCivicRepsResponse;
+  cityCouncilMembers: BlackmadCityCountilResponse,
   onAddressSelected: (b: boolean, c: Address) => void;
 }) {
   console.log({addresses, reps});
+
   const officialAddresses: OfficialAddress[] = (addresses || []).length > 0
     ? addresses.map((address) => {
         return { address };
       })
-    : mungeReps(reps);
+    : [...mungeCityCouncil(cityCouncilMembers), ...mungeReps(reps).reverse()];
 
   return (
     <>
@@ -103,8 +132,9 @@ function Addresses({
         const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
           onAddressSelected(event.target.checked, address);
         };
+        const key = `${address.name}:${officialAddress.officeName}`;
         return (
-          <Row key={address.name}>
+          <Row key={key}>
             <Form.Group controlId={address.name}>
               <Form.Check
                 type="checkbox"
@@ -160,6 +190,7 @@ function PostcardForm({ mailId, templateBody }: Props) {
   const [variableMap, setVariableMap] = useState({} as Record<string, string>);
   const [checkedAddresses, setCheckedAddresses] = useState([] as Address[]);
   const [reps, setReps] = useState({} as GoogleCivicRepsResponse);
+  const [cityCouncilMembers, setCityCouncilMembers] = useState({} as BlackmadCityCountilResponse);
 
   const setTemplateAndVars = (template: Template) => {
     setTemplate(template);
@@ -208,10 +239,11 @@ function PostcardForm({ mailId, templateBody }: Props) {
       return;
     }
 
-    console.log(template.addresses)
     if (!template.addresses || template.addresses.length === 0) {
+      const singleLineAddress = addressToSingleLine(myAddress);
+
       const params = new URLSearchParams({
-        address: addressToSingleLine(myAddress),
+        address: singleLineAddress,
       }).toString();
 
       console.log('searching google');
@@ -224,6 +256,23 @@ function PostcardForm({ mailId, templateBody }: Props) {
           setReps(data as GoogleCivicRepsResponse);
         });
       });
+
+      getGeocode({ address: singleLineAddress })
+        .then((results) => getLatLng(results[0]))
+        .then((latLng) => {
+          const { lat, lng } = latLng;
+
+          fetch(
+            `https://city-council-api.herokuapp.com/lookup?lat=${lat}&lng=${lng}`
+          ).then((res) => {
+            res.json().then((data) => {
+              console.log('setting citycouncil', data);
+              setCityCouncilMembers(data as BlackmadCityCountilResponse);
+            });
+          });
+       
+          console.log("Coordinates: ", { lat, lng });
+        });
     }
   }, [myAddress, template]);
 
@@ -294,7 +343,7 @@ function PostcardForm({ mailId, templateBody }: Props) {
         </div>
       </Row>
 
-      <Addresses reps={reps} addresses={template.addresses} onAddressSelected={onAddressSelected} />
+      <Addresses reps={reps} cityCouncilMembers={cityCouncilMembers} addresses={template.addresses} onAddressSelected={onAddressSelected} />
 
       <CheckoutForm
         checkedAddresses={checkedAddresses}

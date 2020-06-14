@@ -17,7 +17,7 @@ const Home = () => {
     }, []);
 
     return (
-        <Container>
+        <Container className="p-3">
             <h1>Active Campaigns</h1>
             {templates.map(template => {
                 const pathname = "/card/" + template.id;
