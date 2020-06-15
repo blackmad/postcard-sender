@@ -375,12 +375,14 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
       <Row>
         <div
           style={{
-            padding: "10px",
             background: "cornsilk",
             margin: "10px",
-            whiteSpace: "pre-wrap",
+            padding: "10px",
+            // whiteSpace: "pre-wrap",
             width: "100%",
             height: "60vh",
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
           <Form.Control
@@ -389,9 +391,15 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
             style={{ width: "100%", height: "100%" }}
             onChange={onBodyTextKeyPress}
           />
+
+          {template.notes && <div style={{
+            fontStyle: 'italic',
+            textAlign: 'right',
+          }} className="p-1">{template.notes}</div>}
         </div>
       </Row>
 
+      <div className="pt-2 pb-2">
       <Addresses
         reps={reps}
         cityCouncilMembers={cityCouncilMembers}
@@ -408,6 +416,7 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
         email={email}
         variables={variableMap}
       />
+      </div>
     </Container>
   );
 }

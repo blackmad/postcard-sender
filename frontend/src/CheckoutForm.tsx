@@ -80,15 +80,15 @@ const CheckoutForm = ({
 
   const isDisabled = checkedAddresses.length === 0 || !formValid || inSubmit;
 
-  let buttonText = "Select some addresses and fill in all fields";
+  let buttonText = "";
   if (inSubmit) {
     buttonText = "Submitting ...";
-  } else if (checkedAddresses.length === 0 && !formValid) {
+  } else if (myAddress.address_line1 && checkedAddresses.length === 0 && !formValid) {
     buttonText = "Select some addresses and fill in all fields";
-  } else if (checkedAddresses.length === 0) {
+  } else if (myAddress.address_line1 && checkedAddresses.length === 0) {
     buttonText = "Select some addresses";
   } else if (!formValid) {
-    buttonText = "Fill in all fields";
+    buttonText = "Please fill in all fields";
   } else {
     buttonText = `Mail ${checkedAddresses.length} letters for $${totalAmount.toFixed(2)}`;
   }
