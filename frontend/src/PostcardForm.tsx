@@ -46,6 +46,15 @@ type OfficialAddress = {
   address: Address;
 };
 
+const makeAddressLine = (parts: string[]): string | undefined => {
+  const partsToUse = parts.filter((p) => Boolean(p));
+  if (partsToUse.length > 0) {
+    return partsToUse.join(", ");
+  } else {
+    return undefined;
+  }
+};
+
 const mungeCityCouncil = (
   cityCouncilMembers: BlackmadCityCountilResponse,
   restricts: OfficialRestrict[]
@@ -71,9 +80,7 @@ const mungeCityCouncil = (
         address: {
           name: cityCouncilMember.name,
           address_line1: address.address.line1,
-          address_line2: [address.address.line2, address.address.line3]
-            .filter((a) => Boolean(a))
-            .join(" "),
+          address_line2: makeAddressLine([address.address.line2, address.address.line3]),
           address_city: address.address.city,
           address_state: address.address.state,
           address_zip: address.address.zip,
@@ -117,9 +124,7 @@ const mungeReps = (
 
     return office.officialIndices
       .map((officialIndex) => {
-        // console.log("looking for", officialIndex, "in", office);
         const official = reps.officials[officialIndex];
-        // console.log({ official });
         if (!official.address || official.address.length === 0) {
           return undefined;
         }
@@ -128,7 +133,7 @@ const mungeReps = (
           address: {
             name: official.name,
             address_line1: address.line1,
-            address_line2: [address.line2, address.line3].join(" "),
+            address_line2: makeAddressLine([address.line2, address.line3]),
             address_city: address.city,
             address_state: address.state,
             address_zip: address.zip,
@@ -154,8 +159,6 @@ function Addresses({
   onAddressSelected: (b: boolean, c: Address) => void;
   restricts?: OfficialRestrict[];
 }) {
-  console.log(restricts);
-
   let officialAddresses: OfficialAddress[] =
     (addresses || []).length > 0
       ? addresses.map((address) => {
@@ -175,7 +178,7 @@ function Addresses({
         const key = `${address.name}:${officialAddress.officeName}`;
         return (
           <Row key={key}>
-            <Form.Group controlId={address.name}>
+            <Form.Group controlId={key}>
               <Form.Check
                 type="checkbox"
                 label={
@@ -268,7 +271,6 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
   }, [adhocTemplate]);
 
   useEffect(() => {
-    // console.log({ myAddress });
     if (
       !myAddress.address_city ||
       !myAddress.address_line1 ||
@@ -286,13 +288,10 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
       }).toString();
 
       if (!template.cityCouncilOnly) {
-        console.log("searching google");
-
         fetch(
           "https://us-central1-political-postcards.cloudfunctions.net/api/findReps?" + params
         ).then((res) => {
           res.json().then((data) => {
-            console.log("setting reps");
             setReps(data as GoogleCivicRepsResponse);
           });
         });
@@ -306,19 +305,16 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
           fetch(`https://city-council-api.herokuapp.com/lookup?lat=${lat}&lng=${lng}`).then(
             (res) => {
               res.json().then((data) => {
-                console.log("setting citycouncil", data);
                 setCityCouncilMembers(data as BlackmadCityCountilResponse);
               });
             }
           );
 
-          console.log("Coordinates: ", { lat, lng });
         });
     }
   }, [myAddress, template]);
 
   const updateField = (key: string, value: string) => {
-    // console.log({ key, value });
     const newMap = { ...variableMap };
     newMap[key] = value;
     setVariableMap(newMap);
@@ -335,23 +331,22 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
   };
 
   const onBodyTextKeyPress = (event: any) => {
-    console.log({ event });
-    console.log(event.target.value);
     setBodyTextEdited(true);
     setBodyText(event.target.value);
   };
 
   const onAddressSelected = (isChecked: boolean, address: Address) => {
-    // console.log({ isChecked, address });
     if (isChecked) {
       setCheckedAddresses(_.uniq([...checkedAddresses, address]));
     } else {
-      setCheckedAddresses(checkedAddresses.filter((a) => a !== address));
+      setCheckedAddresses(checkedAddresses.filter((a) => {
+        return JSON.stringify(a) !== JSON.stringify(address);
+      }));
     }
   };
 
   const updateAddress = (address: Address) => {
-    // console.log("updating", address);
+    // console.log("updating address);
     setMyAddress(address);
 
     updateField("YOUR NAME", address.name);
@@ -381,8 +376,8 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
             // whiteSpace: "pre-wrap",
             width: "100%",
             height: "60vh",
-            display: 'flex',
-            flexDirection: 'column',
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           <Form.Control
@@ -392,30 +387,37 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
             onChange={onBodyTextKeyPress}
           />
 
-          {template.notes && <div style={{
-            fontStyle: 'italic',
-            textAlign: 'right',
-          }} className="p-1">{template.notes}</div>}
+          {template.notes && (
+            <div
+              style={{
+                fontStyle: "italic",
+                textAlign: "right",
+              }}
+              className="p-1"
+            >
+              {template.notes}
+            </div>
+          )}
         </div>
       </Row>
 
       <div className="pt-2 pb-2">
-      <Addresses
-        reps={reps}
-        cityCouncilMembers={cityCouncilMembers}
-        addresses={template.addresses || []}
-        onAddressSelected={onAddressSelected}
-        restricts={template.officialRestricts}
-      />
+        <Addresses
+          reps={reps}
+          cityCouncilMembers={cityCouncilMembers}
+          addresses={template.addresses || []}
+          onAddressSelected={onAddressSelected}
+          restricts={template.officialRestricts}
+        />
 
-      <CheckoutForm
-        checkedAddresses={checkedAddresses}
-        myAddress={myAddress}
-        body={bodyText}
-        formValid={hasAllKeys}
-        email={email}
-        variables={variableMap}
-      />
+        <CheckoutForm
+          checkedAddresses={checkedAddresses}
+          myAddress={myAddress}
+          body={bodyText}
+          formValid={hasAllKeys}
+          email={email}
+          variables={variableMap}
+        />
       </div>
     </Container>
   );
