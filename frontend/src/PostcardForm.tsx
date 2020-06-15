@@ -22,7 +22,7 @@ import MyAddressInput from "./MyAddressInput";
 import { templatesCollection } from "./firebase";
 import { isTestMode } from "./utils";
 
-const SpecialVars = ["YOUR NAME"];
+const SpecialVars = ["YOUR NAME", "YOUR DISTRICT"];
 
 function parseVars(template: string) {
   const match = template.match(/\[[^\]]+\]/g);
@@ -141,6 +141,13 @@ const mungeReps = (
 
     return office.officialIndices
       .map((officialIndex) => {
+        // divisionId: "ocd-division/country:us/state:pa/place:philadelphia/council_district:1",
+        const districtPattern = /:(\d+)$/;
+        let district: string | undefined;
+        if (districtPattern.test(office.divisionId)) {
+          district = office.divisionId.match(districtPattern)?.[1];
+        }
+
         const official = reps.officials[officialIndex];
         if (!official.address || official.address.length === 0) {
           return undefined;
@@ -157,6 +164,7 @@ const mungeReps = (
             address_country: "US",
           },
           officeName: office.name,
+          district,
         };
       })
       .filter((a) => a !== undefined) as OfficialAddress[];
@@ -337,9 +345,14 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
 
           fetch(`https://city-council-api.herokuapp.com/lookup?lat=${lat}&lng=${lng}`).then(
             (res) => {
-              res.json().then((data) => {
+              res.json().then((data: BlackmadCityCountilResponse) => {
                 setIsSearching(false);
-                setCityCouncilMembers(data as BlackmadCityCountilResponse);
+                const districtEntry = data.data.find((o) => Boolean(o.district))
+                if (districtEntry) {
+                  updateField('YOUR DISTRICT', districtEntry.district)
+                }
+
+                setCityCouncilMembers(data);
               });
             }
           );
