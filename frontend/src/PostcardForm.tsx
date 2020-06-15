@@ -44,6 +44,7 @@ const addressToSingleLine = (address: Address): string => {
 type OfficialAddress = {
   officeName?: string;
   address: Address;
+  link?: string;
 };
 
 const makeAddressLine = (parts: string[]): string | undefined => {
@@ -75,7 +76,14 @@ const mungeCityCouncil = (
     ) {
       return [];
     }
+
+    let link: string;
+    if (cityCouncilMember.body === 'New York City Council') {
+      link = `https://defund-nypd-reps.glitch.me/district/${cityCouncilMember.district}`;
+    }
+
     return cityCouncilMember.addresses.map((address) => {
+      const officeName = address.name ? cityCouncilMember.office.name + " - " + address.name : cityCouncilMember.office.name ;
       return {
         address: {
           name: cityCouncilMember.name,
@@ -86,7 +94,8 @@ const mungeCityCouncil = (
           address_zip: address.address.zip,
           address_country: "US",
         },
-        officeName: cityCouncilMember.office.name + " - " + address.name,
+        officeName,
+        link,
       };
     });
   });
@@ -192,7 +201,7 @@ function Addresses({
                   <>
                     <b>{address.name}</b>
                     {officialAddress.officeName && ` (${officialAddress.officeName})`},{" "}
-                    {addressToSingleLine(address)}
+                    {addressToSingleLine(address)} {officialAddress.link && <a target="_blank" href={officialAddress.link}>Read about their positions</a>}
                   </>
                 }
                 onChange={onChange}

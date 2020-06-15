@@ -92,6 +92,7 @@ export interface BlackmadCityCountilResponseOfficial {
     name: string;
     role: GoogleCivicRepsResponseRole;
   };
+  body: string;
   photoUrl: string;
   urls: string[];
 }
