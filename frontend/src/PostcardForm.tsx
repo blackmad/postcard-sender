@@ -22,7 +22,7 @@ import MyAddressInput from "./MyAddressInput";
 import { templatesCollection } from "./firebase";
 import { isTestMode } from "./utils";
 
-const SpecialVars = ["YOUR NAME", "YOUR ADDRESS"];
+const SpecialVars = ["YOUR NAME"];
 
 function parseVars(template: string) {
   const match = template.match(/\[[^\]]+\]/g);
