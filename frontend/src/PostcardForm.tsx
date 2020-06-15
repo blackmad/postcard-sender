@@ -152,12 +152,14 @@ function Addresses({
   reps,
   cityCouncilMembers,
   restricts,
+  myAddress,
 }: {
   addresses: Address[];
   reps: GoogleCivicRepsResponse;
   cityCouncilMembers: BlackmadCityCountilResponse;
   onAddressSelected: (b: boolean, c: Address) => void;
   restricts?: OfficialRestrict[];
+  myAddress: Address;
 }) {
   let officialAddresses: OfficialAddress[] =
     (addresses || []).length > 0
@@ -168,6 +170,11 @@ function Addresses({
           ...mungeCityCouncil(cityCouncilMembers, restricts || []),
           ...mungeReps(reps, restricts || []).reverse(),
         ];
+
+  if (myAddress.address_line1 && officialAddresses.length === 0) {
+    return (<div>No representatives found, sorry</div>);
+  }
+  
   return (
     <>
       {officialAddresses?.map((officialAddress) => {
@@ -237,6 +244,7 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
   const [checkedAddresses, setCheckedAddresses] = useState([] as Address[]);
   const [reps, setReps] = useState({} as GoogleCivicRepsResponse);
   const [cityCouncilMembers, setCityCouncilMembers] = useState({} as BlackmadCityCountilResponse);
+  const [isSearching, setIsSearching] = useState(false);
 
   const setTemplateAndVars = (template: Template) => {
     setTemplate(template);
@@ -288,15 +296,18 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
       }).toString();
 
       if (!template.cityCouncilOnly) {
+        setIsSearching(true);
         fetch(
           "https://us-central1-political-postcards.cloudfunctions.net/api/findReps?" + params
         ).then((res) => {
           res.json().then((data) => {
             setReps(data as GoogleCivicRepsResponse);
+            setIsSearching(false);
           });
         });
       }
 
+      setIsSearching(true);
       getGeocode({ address: singleLineAddress })
         .then((results) => getLatLng(results[0]))
         .then((latLng) => {
@@ -305,6 +316,7 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
           fetch(`https://city-council-api.herokuapp.com/lookup?lat=${lat}&lng=${lng}`).then(
             (res) => {
               res.json().then((data) => {
+                setIsSearching(false);
                 setCityCouncilMembers(data as BlackmadCityCountilResponse);
               });
             }
@@ -402,13 +414,17 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
       </Row>
 
       <div className="pt-2 pb-2">
-        <Addresses
-          reps={reps}
-          cityCouncilMembers={cityCouncilMembers}
-          addresses={template.addresses || []}
-          onAddressSelected={onAddressSelected}
-          restricts={template.officialRestricts}
-        />
+        {isSearching
+          ? (<div>Searching for representatives ...</div>)
+          : <Addresses
+            reps={reps}
+            cityCouncilMembers={cityCouncilMembers}
+            addresses={template.addresses || []}
+            onAddressSelected={onAddressSelected}
+            restricts={template.officialRestricts}
+            myAddress={myAddress}
+          />
+        }
 
         <CheckoutForm
           checkedAddresses={checkedAddresses}

@@ -40,7 +40,7 @@ const makeLetter = ({
   email: string;
   isTest: boolean;
 }): string => {
-  const formattedBody = body.replace(/\n/g, "<br/><br/>");
+  const formattedBody = body.replace(/\n/g, "<br/>");
 
   const options1 = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
   const date1 = new Date();
