@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "political-postcards": {
+      "hosting": {
+        "mail-your-rep-dev": [
+          "mail-your-rep-dev"
+        ],
+        "mail-your-rep": [
+          "mail-your-rep"
+        ]
+      }
+    }
+  }
+}
