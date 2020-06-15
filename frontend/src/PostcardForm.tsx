@@ -78,12 +78,14 @@ const mungeCityCouncil = (
     }
 
     let link: string;
-    if (cityCouncilMember.body === 'New York City Council') {
+    if (cityCouncilMember.body === "New York City Council") {
       link = `https://defund-nypd-reps.glitch.me/district/${cityCouncilMember.district}`;
     }
 
     return cityCouncilMember.addresses.map((address) => {
-      const officeName = address.name ? cityCouncilMember.office.name + " - " + address.name : cityCouncilMember.office.name ;
+      const officeName = address.name
+        ? cityCouncilMember.office.name + " - " + address.name
+        : cityCouncilMember.office.name;
       return {
         address: {
           name: cityCouncilMember.name,
@@ -115,7 +117,13 @@ const mungeReps = (
       (office.roles.includes("headOfState") ||
         office.roles.includes("headOfGovernment") ||
         office.roles.includes("deputyHeadOfGovernment"));
-    return !isPresidenty;
+
+    const isJudgy =
+      office.roles?.includes("highestCourtJudge") ||
+      office.roles?.includes("judge") ||
+      office.name.includes("Justice") ||
+      office.name.includes("Judge");
+    return !isPresidenty && !isJudgy;
   });
 
   return _.flatMap(offices, (office) => {
@@ -181,9 +189,9 @@ function Addresses({
         ];
 
   if (myAddress.address_line1 && officialAddresses.length === 0) {
-    return (<div>No representatives found, sorry</div>);
+    return <div>No representatives found, sorry</div>;
   }
-  
+
   return (
     <>
       {officialAddresses?.map((officialAddress) => {
@@ -201,7 +209,12 @@ function Addresses({
                   <>
                     <b>{address.name}</b>
                     {officialAddress.officeName && ` (${officialAddress.officeName})`},{" "}
-                    {addressToSingleLine(address)} {officialAddress.link && <a target="_blank" href={officialAddress.link}>Read about their positions</a>}
+                    {addressToSingleLine(address)}{" "}
+                    {officialAddress.link && (
+                      <a target="_blank" href={officialAddress.link}>
+                        Read about their positions
+                      </a>
+                    )}
                   </>
                 }
                 onChange={onChange}
@@ -330,7 +343,6 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
               });
             }
           );
-
         });
     }
   }, [myAddress, template]);
@@ -360,9 +372,11 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
     if (isChecked) {
       setCheckedAddresses(_.uniq([...checkedAddresses, address]));
     } else {
-      setCheckedAddresses(checkedAddresses.filter((a) => {
-        return JSON.stringify(a) !== JSON.stringify(address);
-      }));
+      setCheckedAddresses(
+        checkedAddresses.filter((a) => {
+          return JSON.stringify(a) !== JSON.stringify(address);
+        })
+      );
     }
   };
 
@@ -423,9 +437,10 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
       </Row>
 
       <div className="pt-2 pb-2">
-        {isSearching
-          ? (<div>Searching for representatives ...</div>)
-          : <Addresses
+        {isSearching ? (
+          <div>Searching for representatives ...</div>
+        ) : (
+          <Addresses
             reps={reps}
             cityCouncilMembers={cityCouncilMembers}
             addresses={template.addresses || []}
@@ -433,7 +448,7 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
             restricts={template.officialRestricts}
             myAddress={myAddress}
           />
-        }
+        )}
 
         <CheckoutForm
           checkedAddresses={checkedAddresses}
