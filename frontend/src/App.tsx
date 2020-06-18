@@ -96,7 +96,7 @@ function App() {
           <Route path="/send">
             <AdhocCard />
           </Route>
-          <Route path="/success">
+          <Route path="/letterSuccess">
             <Success />
           </Route>
           <Route path="/">

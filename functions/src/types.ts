@@ -20,6 +20,7 @@ export const startPaymentRequestSchema = Joi.object({
   body: Joi.string().required(),
   email: Joi.string().email().required(),
   variables: Joi.object(),
+  test: Joi.bool()
 });
 
 export type Order = Joi.extractType<typeof startPaymentRequestSchema> & {

@@ -37,8 +37,6 @@ app.post(
   asyncHandler(async (req, res) => {
     const host = req.get("Origin") || req.get("origin");
 
-    const isTest = host?.replace('http://', '').replace('https://', '').replace('/', '') !== 'mail-your-rep.web.app';
-
     const validation = startPaymentRequestSchema.validate(req.body);
     if (validation.error) {
       res.status(500).json({ errors: validation.error.details });
@@ -46,6 +44,9 @@ app.post(
     }
 
     const body = req.body as StartPaymentRequestType;
+    
+    const isTest = body.test;
+
     const toAddresses = body.toAddresses;
 
     const orderRef = orderCollection.doc();
@@ -65,7 +66,7 @@ app.post(
       customer_email: body.email,
       client_reference_id: orderId,
       mode: "payment",
-      success_url: `${host}/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${host}/letterSuccess?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${host}/cancel`,
     });
 
