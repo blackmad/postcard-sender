@@ -112,6 +112,10 @@ const mungeReps = (
   }
 
   const offices = reps.offices.filter((office) => {
+    if (!office.roles && office.levels.includes("locality") && office.name.includes("Council")) {
+      office.roles = ["legislatorUpperBody"];
+    }
+
     const isPresidenty =
       office.levels.includes("country") &&
       (office.roles.includes("headOfState") ||
@@ -347,9 +351,9 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
             (res) => {
               res.json().then((data: BlackmadCityCountilResponse) => {
                 setIsSearching(false);
-                const districtEntry = data.data.find((o) => Boolean(o.district))
+                const districtEntry = data.data.find((o) => Boolean(o.district));
                 if (districtEntry) {
-                  updateField('YOUR DISTRICT', districtEntry.district)
+                  updateField("YOUR DISTRICT", districtEntry.district);
                 }
 
                 setCityCouncilMembers(data);
