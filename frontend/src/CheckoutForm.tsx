@@ -50,7 +50,7 @@ const CheckoutForm = ({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          fromAddress: myAddress,
+          fromAddress: { ...myAddress, email },
           toAddresses: checkedAddresses,
           body,
           variables: variables,
