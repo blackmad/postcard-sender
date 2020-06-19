@@ -102,4 +102,19 @@ app.get(
   })
 );
 
+// import * as basicAuth from 'express-basic-auth'
+
+app.post(
+  "/lob/webhook",
+  asyncHandler(async (req, res) => {
+    console.log(req);
+    return res.json({});
+    // await finishOrder(req.params.id as string);
+    // return res.json({ received: true });
+  })
+
+)
+
+
+
 export default app;
