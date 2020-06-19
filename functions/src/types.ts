@@ -19,7 +19,6 @@ export const startPaymentRequestSchema = Joi.object({
   toAddresses: Joi.array().items(addressSchema).min(1),
   body: Joi.string().required(),
   email: Joi.string().email().required(),
-  variables: Joi.object(),
   test: Joi.bool()
 });
 

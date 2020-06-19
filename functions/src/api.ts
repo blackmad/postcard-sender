@@ -102,42 +102,4 @@ app.get(
   })
 );
 
-// app.get(
-//   '/template/:id',
-//   (req, res) => {
-//     console.log(req.body);
-//     console.log(req.query);
-//     // res.end(`Hello ${req.query.name}!`)
-//   }
-// )
-
-// app.post("/send", (req, res, next) => {
-//   const body = request.body;
-//   const validation = schema.validate(body)
-
-//   if (validation.error) {
-//     res.
-//   }
-
-//   const lobParams = {
-//     size: "4x6",
-//     front: frontHtml,
-//     back: backHtml,
-//     merge_variables: {
-//       background_image: row[1],
-//       background_color: row[2],
-//       name: row[0],
-//       car: row[3],
-//       mileage: row[4],
-//     },
-//   };
-
-//   return Lob.postcards.create(lobParams, (err, postcard) => {
-//     if (err) {
-//       return console.log(err);
-//     }
-//     console.log(`Postcard to ${postcard.to.name} sent! View it here: ${postcard.url}`);
-//   });
-// });
-
 export default app;
