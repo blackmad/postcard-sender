@@ -53,7 +53,6 @@ const CheckoutForm = ({
           fromAddress: { ...myAddress, email },
           toAddresses: checkedAddresses,
           body,
-          variables: variables,
           email,
         }),
       }

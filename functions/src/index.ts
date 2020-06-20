@@ -17,6 +17,7 @@ exports.api = functions.https.onRequest(app);
 exports.executeOrder = functions.firestore
     .document('orders/{orderId}')
     .onUpdate((change, _context) => {
+      console.log('got order change')
       // Get an object representing the document
       // e.g. {'name': 'Marie', 'age': 66}
       const newValue = change.after.data();
@@ -25,8 +26,11 @@ exports.executeOrder = functions.firestore
       const previousValue = change.before.data();
 
       if (previousValue.paid || !newValue.paid || newValue.fulfilled || previousValue.fulfilled) {
+        console.log('was already paid')
         return true;
       }
+
+      console.log('executing order');
 
       return executeOrder(newValue as Order);
     });

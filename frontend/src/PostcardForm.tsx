@@ -22,7 +22,7 @@ import MyAddressInput from "./MyAddressInput";
 import { templatesCollection } from "./firebase";
 import { isTestMode } from "./utils";
 
-const SpecialVars = ["YOUR NAME", "YOUR DISTRICT"];
+const SpecialVars = ["YOUR NAME"];
 
 function parseVars(template: string) {
   const match = template.match(/\[[^\]]+\]/g);
@@ -329,7 +329,7 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
         address: singleLineAddress,
       }).toString();
 
-      if (!template.cityCouncilOnly) {
+      // if (!template.cityCouncilOnly) {
         setIsSearching(true);
         fetch(
           "https://us-central1-political-postcards.cloudfunctions.net/api/findReps?" + params
@@ -339,7 +339,7 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
             setIsSearching(false);
           });
         });
-      }
+      // }
 
       setIsSearching(true);
       getGeocode({ address: singleLineAddress })
@@ -365,6 +365,7 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
   }, [myAddress, template]);
 
   const updateField = (key: string, value: string) => {
+    console.log({key, value})
     const newMap = { ...variableMap };
     newMap[key] = value;
     setVariableMap(newMap);
@@ -404,7 +405,9 @@ function PostcardForm({ mailId, adhocTemplate }: Props) {
     updateField("YOUR NAME", address.name);
   };
 
-  const hasAllKeys = _.difference([...variables, ...SpecialVars], _.keys(variableMap)).length === 0;
+  const missingKeys = _.difference([...variables, ...SpecialVars], _.keys(variableMap));
+  console.log({missingKeys, variableMap, variables})
+  const hasAllKeys = missingKeys.length === 0
 
   if (!template) {
     return <Container className="pt-5">Loading ...</Container>;

@@ -70,7 +70,7 @@ app.post(
       cancel_url: `${host}/cancel`,
     });
 
-    orderRef.set({ ...body, orderId, isTest }).then(() => {
+    orderRef.set({ ...body, orderId, isTest: isTest || false }).then(() => {
       res.json({ sessionId: stripeSession.id });
     });
   })

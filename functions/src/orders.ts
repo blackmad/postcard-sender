@@ -14,14 +14,30 @@ Preview: ${lobResponse.url}`;
 
   const body = `You sent some letters!\n\n${responseSummaries}`;
 
+  const htmlResponseSummaries = lobResponses
+  .map((lobResponse: any) => {
+    return `<ul><a href="${lobResponse.url}">${lobResponse.to.name}</a> - expected delivery: ${lobResponse.expected_delivery_date.substring(0, 10)}`
+  })
+  .join("\n");
+
+  const htmlBody = `Your letters have been sent to the printer!\n\n
+  
+  <ul>${htmlResponseSummaries}</ul>
+  
+  You should get a follow-up email in a few days when the letters are close to being deliverd
+  `;
+
+
   const msg = {
     to: email,
     from: "defund12@blackmad.com",
     subject: "Letters Sent!",
     text: body,
+    html: htmlBody
   };
   console.log("sending this email", msg);
-  sgMail.send(msg).catch((err: any) => {
+  return sgMail.send(msg).catch((err: any) => {
+    console.log(err)
     console.dir(err, { depth: 10 });
     throw err;
   });
@@ -47,7 +63,7 @@ Because it's a first class letter, we don't know exactly when it arrives at thei
 
   const htmlBody = `Your defund12 letter has almost arrived.
 <br><br>  
-A <a href="${lobResponse.url}">letter</a> that you sent on ${sendDate} 
+A <a href="${lobResponse.body.url}">letter</a> that you sent on ${sendDate} 
 is about one day away from arriving at the office of ${lobResponse.body.to.name} in ${lobResponse.body.to.address_city}.
 <br><br>
 Because it's a first class letter, we don't know <a href="https://support.lob.com/hc/en-us/articles/115000097404-Can-I-track-my-mail-">exactly</a> when it arrives at their door, but we do know that it's in the area and should be delivered by tomorrow.
@@ -57,12 +73,12 @@ Because it's a first class letter, we don't know <a href="https://support.lob.co
   const msg = {
     to: lobResponse.body.from.email,
     from: "defund12@blackmad.com",
-    subject: "Letters Sent!",
+    subject: "Letters (almost) delivered!",
     text: body,
     html: htmlBody,
   };
   console.log("sending this email", msg);
-  sgMail.send(msg).catch((err: any) => {
+  return sgMail.send(msg).catch((err: any) => {
     console.dir(err, { depth: 10 });
     throw err;
   });
@@ -176,7 +192,7 @@ const makeLetter = ({
 };
 
 export const markOrderPaid = async (orderId: string) => {
-  console.log("marking order paid", orderId);
+  console.log("marking order paid 1234", orderId);
   const docs = await orderCollection.where("orderId", "==", orderId).get();
   if (docs.empty) {
     throw new Error("no order with id " + orderId);
@@ -235,7 +251,7 @@ export const executeOrder = async (orderData: Order): Promise<any> => {
 
   await orderCollection.doc(orderData.orderId).update({ fulfilled: true });
   const lobResponses = await Promise.all([...lobPromises]);
-  notifyUser(orderData.email, lobResponses);
+  await notifyUser(orderData.email, lobResponses);
   // console.log(lobResponses);
   return lobResponses;
 };
