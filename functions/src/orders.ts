@@ -16,15 +16,15 @@ Preview: ${lobResponse.url}`;
 
   const htmlResponseSummaries = lobResponses
   .map((lobResponse: any) => {
-    return `<ul><a href="${lobResponse.url}">${lobResponse.to.name}</a> - expected delivery: ${lobResponse.expected_delivery_date.substring(0, 10)}`
+    return `<li> ${lobResponse.to.name} - expected delivery: ${lobResponse.expected_delivery_date.substring(0, 10)} <a href="${lobResponse.url}">(preview)</a></li>`
   })
   .join("\n");
 
   const htmlBody = `Your letters have been sent to the printer!\n\n
   
   <ul>${htmlResponseSummaries}</ul>
-  
-  You should get a follow-up email in a few days when the letters are close to being deliverd
+  <br/><br/>
+  You should get a follow-up email in a few days when the letters are close to being delivered
   `;
 
 
@@ -40,7 +40,7 @@ Preview: ${lobResponse.url}`;
     console.log(err)
     console.dir(err, { depth: 10 });
     throw err;
-  });
+  }).then((x: any) => console.log('sendgrid response', x))
 };
 
 export const notifyUserAboutAlmostDelivered = (lobResponse: any) => {
