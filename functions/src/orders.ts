@@ -16,9 +16,50 @@ Preview: ${lobResponse.url}`;
 
   const msg = {
     to: email,
-    from: "mail-your-rep@blackmad.com",
+    from: "defund12@blackmad.com",
     subject: "Letters Sent!",
     text: body,
+  };
+  console.log("sending this email", msg);
+  sgMail.send(msg).catch((err: any) => {
+    console.dir(err, { depth: 10 });
+    throw err;
+  });
+};
+
+export const notifyUserAboutAlmostDelivered = (lobResponse: any) => {
+  if (lobResponse.event_type.id !== 'letter.processed_for_delivery') {
+    return;
+  }
+  const sendDate = lobResponse.date_created.substring(0, 10);
+
+  const body = `Your defund12 letter has almost arrived.
+  
+A letter that you sent on ${sendDate} 
+is about one day away from arriving at the office of ${lobResponse.body.to.name} in ${
+    lobResponse.body.to.address_city
+  }. If you don't remember what your letter looks like, it looks like ${lobResponse.body.url}
+
+
+Because it's a first class letter, we don't know exactly when it arrives at their door. For more information about that, see https://support.lob.com/hc/en-us/articles/115000097404-Can-I-track-my-mail-
+
+`;
+
+  const htmlBody = `Your defund12 letter has almost arrived.
+<br><br>  
+A <a href="${lobResponse.url}">letter</a> that you sent on ${sendDate} 
+is about one day away from arriving at the office of ${lobResponse.body.to.name} in ${lobResponse.body.to.address_city}.
+<br><br>
+Because it's a first class letter, we don't know <a href="https://support.lob.com/hc/en-us/articles/115000097404-Can-I-track-my-mail-">exactly</a> when it arrives at their door, but we do know that it's in the area and should be delivered by tomorrow.
+
+`;
+
+  const msg = {
+    to: lobResponse.body.from.email,
+    from: "defund12@blackmad.com",
+    subject: "Letters Sent!",
+    text: body,
+    html: htmlBody,
   };
   console.log("sending this email", msg);
   sgMail.send(msg).catch((err: any) => {
@@ -48,7 +89,7 @@ const makeLetter = ({
   const dateTimeFormat3 = new Intl.DateTimeFormat("en-US", options1);
   const formattedDate = dateTimeFormat3.format(date1);
 
-  return `
+  return `t
 <html>
 <head>
 <meta charset="UTF-8">

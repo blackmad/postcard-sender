@@ -13,7 +13,7 @@ app.use(cors({ origin: true }));
 
 import { startPaymentRequestSchema, StartPaymentRequestType } from "./types";
 import { orderCollection } from "./database";
-import { markOrderPaid } from "./orders";
+import { markOrderPaid, notifyUserAboutAlmostDelivered } from "./orders";
 
 app.use(bodyParser.json());
 
@@ -94,27 +94,12 @@ app.post(
   })
 );
 
-app.get(
-  "/forceOrder/:id",
-  asyncHandler(async (req, res) => {
-    // await finishOrder(req.params.id as string);
-    return res.json({ received: true });
-  })
-);
-
-// import * as basicAuth from 'express-basic-auth'
-
 app.post(
   "/lob/webhook",
   asyncHandler(async (req, res) => {
-    console.log(req);
+    notifyUserAboutAlmostDelivered(req.body);
     return res.json({});
-    // await finishOrder(req.params.id as string);
-    // return res.json({ received: true });
   })
-
 )
-
-
 
 export default app;
