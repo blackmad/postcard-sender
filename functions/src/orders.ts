@@ -105,12 +105,11 @@ const makeLetter = ({
   const dateTimeFormat3 = new Intl.DateTimeFormat("en-US", options1);
   const formattedDate = dateTimeFormat3.format(date1);
 
-  return `t
+  return `
 <html>
 <head>
 <meta charset="UTF-8">
 <link href='https://fonts.googleapis.com/css?family=Open+Sans:400' rel='stylesheet' type='text/css'>
-<title>Lob.com Outstanding Balance Letter Template</title>
 <style>
   @font-face {
     font-family: 'Loved by the King';
@@ -179,9 +178,6 @@ const makeLetter = ({
 
         <p>
           ${fromAddress.name}<br/>
-          <!--${fromAddress.address_line1}, ${fromAddress.address_city}, ${
-    fromAddress.address_state
-  } ${fromAddress.address_zip}<br/>-->
           ${email}
       </div>
     </div>
@@ -226,7 +222,7 @@ export const executeOrder = async (orderData: Order): Promise<any> => {
     return new Promise((resolve, reject) => {
       Lob.letters.create(
         {
-          description: "Demo Letter",
+          description: `${orderData.fromAddress.name} to ${toAddress.name}`,
           to: toAddress,
           from: orderData.fromAddress,
           file: makeLetter({

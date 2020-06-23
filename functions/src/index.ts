@@ -14,16 +14,19 @@ import { Order } from './types';
 
 exports.api = functions.https.onRequest(app);
 
+// fixing: yqRgdp693E5Pcn8fo1DE
+
 exports.executeOrder = functions.firestore
     .document('orders/{orderId}')
-    .onUpdate((change, _context) => {
-      console.log('got order change')
+    .onUpdate((change, context) => {
       // Get an object representing the document
       // e.g. {'name': 'Marie', 'age': 66}
       const newValue = change.after.data();
 
       // ...or the previous value before this update
       const previousValue = change.before.data();
+
+      console.log('got order change on ', context.params.orderId)
 
       if (previousValue.paid || !newValue.paid || newValue.fulfilled || previousValue.fulfilled) {
         console.log('was already paid')

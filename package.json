@@ -30,6 +30,8 @@
     "express-joi-validation": "^4.0.3",
     "firebase": "^7.15.0",
     "joi-extract-type": "^15.0.2",
+    "joi-postalcode": "^1.0.1",
+    "joi-us-zipcode": "^2.0.5",
     "lob": "^6.1.0",
     "lodash": "^4.17.15",
     "react-bootstrap": "^1.0.1",
