@@ -33,7 +33,7 @@
     "joi-postalcode": "^1.0.1",
     "joi-us-zipcode": "^2.0.5",
     "lob": "^6.1.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "react-bootstrap": "^1.0.1",
     "stripe": "^8.60.0"
   },
